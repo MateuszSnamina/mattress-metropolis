@@ -23,7 +23,7 @@ endif()
 # sudo ln -s /opt/cmake/bin/cmake /usr/local/bin/cmake
 
 #################################################################
-project(img_to_rset LANGUAGES CXX)
+project(matterss-metropolis LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
@@ -139,5 +139,5 @@ message("---  the project  -----------------")
 message("-----------------------------------")
 
 add_subdirectory(numboard)
-#add_subdirectory(numboard_tests)
+add_subdirectory(numboard_tests)
 add_subdirectory(metropolis)
