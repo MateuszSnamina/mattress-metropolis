@@ -1,12 +1,14 @@
-#ifndef NDIM_NDIM_HPP
-#define NDIM_NDIM_HPP
+# pragma once
 
+// EXTENSION:
+#include<extensions/stream_fromat_stacker.hpp>
 // STL:
 #include<array>
 // STD:
 #include<cassert>
 #include<iostream>
 #include<iomanip>
+#include<functional>
 
 //**********************************************************************
 //***   Idx                                                          ***
@@ -202,40 +204,3 @@ private:
 };
 
 }
-
-//**********************************************************************
-//***   NumboardPrinter                                              ***
-//**********************************************************************
-
-namespace numboard {
-
-template<unsigned N, unsigned M>
-class NumboardPrinter;
-
-template<unsigned N, unsigned M>
-std::ostream& operator<<(std::ostream&, const NumboardPrinter<N, M>&);
-
-template<unsigned N, unsigned M>
-class NumboardPrinter {
-public:
-    NumboardPrinter(const NumboardView<N, M>& numboard) : _numboard(numboard) {
-    }
-    friend std::ostream& operator<< <>(std::ostream&, const NumboardPrinter<N, M>&);
-private:
-    const NumboardView<N, M>& _numboard;
-};
-
-template<unsigned N, unsigned M>
-std::ostream& operator<<(std::ostream& s, const NumboardPrinter<N, M>& p){
-    for (unsigned a = 0; a < N; a++) {
-        for (unsigned b = 0; b < M; b++) {
-            s << std::setw(2) << p._numboard(In<N>(a), In<M>(b)) << " ";
-        }
-        s << std::endl;
-    }
-    return s;
-}
-
-}
-
-#endif
