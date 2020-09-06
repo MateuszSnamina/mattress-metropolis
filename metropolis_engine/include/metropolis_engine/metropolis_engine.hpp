@@ -259,8 +259,8 @@ template<unsigned N, unsigned M, unsigned NN, unsigned MM>
 void MetropolisEngine<N, M, NN, MM>::init_cache() {
     const double board_energy = _board_energy_getter.get_energy(_numboard);
     const double board_magnetization = calculate_board_magnetization(_numboard);
-    std::cout << "init board_energy:" << board_energy << std::endl;
-    std::cout << "init board_magnetization:" << board_magnetization << std::endl;
+    //std::cout << "init board_energy:" << board_energy << std::endl;
+    //std::cout << "init board_magnetization:" << board_magnetization << std::endl;
     _cache.put_energy_and_magnetization(board_energy, board_magnetization);
 }
 

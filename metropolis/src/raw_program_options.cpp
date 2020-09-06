@@ -30,7 +30,7 @@ ProgramOptions grep_program_options(int argc, char** argv) {
             ("help,h", "Print help messages")
             // --n_thermal,-s:
             ("temperature_steps,s",
-             boost::program_options::value<std::string>(&program_options.temerature_steps_string)->default_value("[0.0,0.2)@0.1;[0.2,0.7)@0.05;[0.7,1)@0.1;1"))
+             boost::program_options::value<std::string>(&program_options.temerature_steps_string)->default_value("(0.0,0.2)@0.1;[0.2,0.7)@0.05;[0.7,1)@0.1;1"))
             // --n_thermal,-t:
             ("n_thermal,t",
              boost::program_options::value<unsigned>(&program_options.n_thermal_steps)->default_value(1e4))
