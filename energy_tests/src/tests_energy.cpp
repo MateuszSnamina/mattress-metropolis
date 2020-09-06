@@ -3,10 +3,10 @@
 // SELF:
 #include <numboard_tests/prepare_board.hpp>
 // TESTEE:
-#include<numboard/energy_getter.hpp>
-#include<numboard/numboard_streamer.hpp> // TEMP
-#include<numboard/energy_getter_ising_multiplet.hpp>
-#include<numboard/energy_getter_ising_doublet.hpp>
+#include<energy/energy_getter.hpp>
+//#include<numboard/numboard_streamer.hpp> // TEMP
+#include<energy/energy_getter_ising_multiplet.hpp>
+#include<energy/energy_getter_ising_doublet.hpp>
 // STD:
 #include<iostream>
 
