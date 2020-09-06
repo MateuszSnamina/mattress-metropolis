@@ -174,30 +174,30 @@ MetropolisEngine<N, M, NN, MM>::MetropolisEngine(
 template<unsigned N, unsigned M, unsigned NN, unsigned MM>
 MetropolisStepReceipt MetropolisEngine<N, M, NN, MM>::do_step() {
     using numboard::In;
-    std::cout << "----------------------------" << std::endl;
+    //std::cout << "----------------------------" << std::endl;
     // Proposed position to change:
     const std::pair<unsigned, unsigned> position = draw_positon();
     const unsigned& a = position.first;
     const unsigned& b = position.second;
-    std::cout << "a, b: " << a << ", " << b << std::endl;
+    //std::cout << "a, b: " << a << ", " << b << std::endl;
     // Original and proposed value:
     const unsigned original_value = _numboard(In<N>(a), In<M>(b));
     assert(original_value == 0 || original_value == 1);
     // //const unsigned proposed_value = draw_proposed_value();
     const unsigned proposed_value = ( original_value ? 0 : 1 );
-    std::cout << "original_value, proposed_value: " << original_value << ", " << proposed_value << std::endl;
+    //std::cout << "original_value, proposed_value: " << original_value << ", " << proposed_value << std::endl;
     // Calculate delta_energy:
     const auto& original_neighbourhood = numboard::NumboardSubViewFactory<NN, MM>::from_center(_numboard, In<N>(a), In<M>(b));
     const auto& proposed_neighbourhood = numboard::NumboardAlterViewFactory<NN, MM>::center(original_neighbourhood, proposed_value);
     double original_neighbourhood_energy = _neighbourhood_energy_getter.get_energy(original_neighbourhood);
     double proposed_neighbourhood_energy =  _neighbourhood_energy_getter.get_energy(proposed_neighbourhood);
     double delta_energy = proposed_neighbourhood_energy - original_neighbourhood_energy;
-    std::cout << "delta_energy:" << delta_energy << std::endl;
+    //std::cout << "delta_energy:" << delta_energy << std::endl;
     // Calculate delta_magnetisation:
     double delta_magnetisation = (original_value ? +1.0 : -1.0);
     // Accept the proposed change or not:
     const bool is_accepted = draw_should_accept(delta_energy);
-    std::cout << "is_accepted:" << is_accepted << std::endl;
+    //std::cout << "is_accepted:" << is_accepted << std::endl;
     const unsigned new_value = (is_accepted? original_value : proposed_value);
     // Board energy and magnetisation:
     const double original_board_energy = _cache.get_energy();
