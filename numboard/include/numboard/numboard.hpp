@@ -181,6 +181,54 @@ public:
 }
 
 //**********************************************************************
+//***   NumboardAlterView and NumboardAlterViewFactory               ***
+//**********************************************************************
+
+namespace numboard {
+
+template<unsigned NN, unsigned MM>
+class NumboardAlterViewFactory;
+
+template<unsigned A, unsigned B, unsigned NN, unsigned MM>
+class NumboardAlterView : public NumboardView<NN, MM> {
+    static_assert (A <= NN);
+    static_assert (B <= MM);
+public:
+    virtual unsigned operator()(const Idx<NN>& x, const Idx<MM>& y) const override {
+        if (unsigned(x) == A && unsigned(y) == B) {
+            return _new_value;
+        }
+        return _numboard(x, y);
+    }
+    friend class NumboardAlterViewFactory<NN, MM>;
+private:
+    const NumboardView<NN, MM>& _numboard;
+    const unsigned _new_value;
+    NumboardAlterView(const NumboardView<NN, MM>& numboard, const unsigned new_value) :
+        _numboard(numboard), _new_value(new_value) {
+    }
+};
+
+template<unsigned NN, unsigned MM>
+class NumboardAlterViewFactory {
+public:
+    template<unsigned A, unsigned B>
+    static NumboardAlterView<A, B, NN, MM> offset_corner(const NumboardView<NN, MM>& numboard, const unsigned new_value) {
+        static_assert (A < NN);
+        static_assert (B < MM);
+        return NumboardAlterView<A, B, NN, MM>(numboard, new_value);
+    }
+
+    static NumboardAlterView<NN / 2, MM / 2, NN, MM> center(const NumboardView<NN, MM>& numboard, const unsigned new_value) {
+        static_assert (NN % 2 == 1);
+        static_assert (MM % 2 == 1);
+        return NumboardAlterView<NN / 2, MM / 2, NN, MM>(numboard, new_value);
+    }
+};
+
+}
+
+//**********************************************************************
 //***   Numboard                                                     ***
 //**********************************************************************
 
