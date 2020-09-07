@@ -95,7 +95,7 @@ do_main_temperature_loop(
 int main(int argc, char** argv) {
     try {
         // ******************************************************************
-        const ProgramOptions program_options = grep_program_options(argc, argv);
+        const RawProgramOptions raw_program_options = grep_program_options(argc, argv);
         // ******************************************************************
         //        std::cout << "[INFO   ] [PROGRAM_OPTIONS] temerature_steps_string = " << program_options.temerature_steps_string << std::endl;
         //        std::cout << "[INFO   ] [PROGRAM_OPTIONS] n_thermal_steps         = " << program_options.n_thermal_steps_string << std::endl;
@@ -104,16 +104,17 @@ int main(int argc, char** argv) {
         //        std::cout << "[INFO   ] [PROGRAM_OPTIONS] ising_multiplicity      = " << program_options.ising_multiplicity << std::endl;
         //        std::cout << "[INFO   ] [PROGRAM_OPTIONS] path_to_chached_data    = " << program_options.path_to_chached_data << std::endl;
         // ******************************************************************
-        const InterpretedProgramOptions interpreted_program_options = interpret_program_options(program_options);
+        const InterpretedProgramOptions interpreted_program_options = interpret_program_options(raw_program_options);
         // ******************************************************************
         std::cout << "[INFO   ] [PROGRAM_OPTIONS] temerature_steps = ";
         for (const auto temperatue : interpreted_program_options.temerature_steps) {
             std::cout << temperatue << ", ";
         }
-        std::cout << std::endl;
-        // ******************************************************************
-        std::cout << "[INFO   ] [PROGRAM_OPTIONS] n_thermal_steps         = " << interpreted_program_options.n_thermal_steps << std::endl;
-        std::cout << "[INFO   ] [PROGRAM_OPTIONS] n_average_steps         = " << interpreted_program_options.n_average_steps << std::endl;
+        std::cout << std::endl; // TODO range print.
+        std::cout << "[INFO   ] [PROGRAM_OPTIONS] n_thermal_steps            = " << interpreted_program_options.n_thermal_steps << std::endl;
+        std::cout << "[INFO   ] [PROGRAM_OPTIONS] n_average_steps            = " << interpreted_program_options.n_average_steps << std::endl;
+        std::cout << "[INFO   ] [PROGRAM_OPTIONS] model_type                 = " << interpreted_program_options.model_type<< std::endl;
+        std::cout << "[INFO   ] [PROGRAM_OPTIONS] energy_getter_type         = " << interpreted_program_options.energy_getter_type<< std::endl;
         // ******************************************************************
         //SET MODEL AND ENERGY GETTERS: TODO
         const energy::ising::doublet::FourNnPartsEnergyGetter parts_energy_getter;

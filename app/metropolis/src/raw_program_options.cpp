@@ -15,14 +15,14 @@ void emit_help(std::ostream& s,
 }
 }  // namespace
 
-ProgramOptions grep_program_options(int argc, char** argv) {
-    ProgramOptions program_options;
+RawProgramOptions grep_program_options(int argc, char** argv) {
+    RawProgramOptions program_options;
     // standard arguments:
     boost::program_options::options_description desc("Options");
     desc.add_options()
             // --help, -h:
             ("help,h", "Print help messages")
-            // --n_thermal,-s:
+            // --temperature_steps,-s:
             ("temperature_steps,s",
              boost::program_options::value<std::string>(&program_options.temerature_steps_string)->default_value("(0.0,0.2)@0.1;[0.2,0.7)@0.05;[0.7,1)@0.1;1"))
             // --n_thermal,-t:
@@ -33,7 +33,10 @@ ProgramOptions grep_program_options(int argc, char** argv) {
              boost::program_options::value<std::string>(&program_options.n_average_steps_string)->default_value("100k"))
             // --model,-m:
             ("model,m",
-             boost::program_options::value<std::string>(&program_options.model)->default_value("ising::doublet"))
+             boost::program_options::value<std::string>(&program_options.model_type_string)->default_value("ising::doublet"))
+            // --energy,-e:
+            ("energy,e",
+             boost::program_options::value<std::string>(&program_options.energy_getter_type_string)->default_value("4nn"))
             // --ising_multiplicity,-n:
             ("ising_multiplicity,n",
              boost::program_options::value<unsigned>(&program_options.ising_multiplicity)->default_value(2))
