@@ -8,6 +8,8 @@
 #include <energy/energy_getter_ising_multiplet.hpp> //TODO remove
 // NUMBOARD:
 #include <numboard/numboard.hpp>
+// EXTENSIONS:
+#include <extensions/range_streamer.hpp>
 // BOOST:
 #include <boost/range/adaptor/indexed.hpp>
 // STD:
@@ -96,21 +98,14 @@ int main(int argc, char** argv) {
     try {
         // ******************************************************************
         const RawProgramOptions raw_program_options = grep_program_options(argc, argv);
-        // ******************************************************************
-        //        std::cout << "[INFO   ] [PROGRAM_OPTIONS] temerature_steps_string = " << program_options.temerature_steps_string << std::endl;
-        //        std::cout << "[INFO   ] [PROGRAM_OPTIONS] n_thermal_steps         = " << program_options.n_thermal_steps_string << std::endl;
-        //        std::cout << "[INFO   ] [PROGRAM_OPTIONS] n_average_steps         = " << program_options.n_average_steps_string << std::endl;
-        //        std::cout << "[INFO   ] [PROGRAM_OPTIONS] model                   = " << program_options.model << std::endl;
-        //        std::cout << "[INFO   ] [PROGRAM_OPTIONS] ising_multiplicity      = " << program_options.ising_multiplicity << std::endl;
-        //        std::cout << "[INFO   ] [PROGRAM_OPTIONS] path_to_chached_data    = " << program_options.path_to_chached_data << std::endl;
-        // ******************************************************************
         const InterpretedProgramOptions interpreted_program_options = interpret_program_options(raw_program_options);
         // ******************************************************************
-        std::cout << "[INFO   ] [PROGRAM_OPTIONS] temerature_steps = ";
-        for (const auto temperatue : interpreted_program_options.temerature_steps) {
-            std::cout << temperatue << ", ";
-        }
-        std::cout << std::endl; // TODO range print.
+        std::cout << "[INFO   ] [PROGRAM_OPTIONS] temerature_steps           = "
+                  << extension::boost::RangeStringStreamer()
+                     .set_stream_sustainer([](::std::ostream& s, size_t i){})
+                     .set_stream_separer([](::std::ostream& s){ s << ", ";})
+                     .stream(interpreted_program_options.temerature_steps).str()
+                  << std::endl;
         std::cout << "[INFO   ] [PROGRAM_OPTIONS] n_thermal_steps            = " << interpreted_program_options.n_thermal_steps << std::endl;
         std::cout << "[INFO   ] [PROGRAM_OPTIONS] n_average_steps            = " << interpreted_program_options.n_average_steps << std::endl;
         std::cout << "[INFO   ] [PROGRAM_OPTIONS] model_type                 = " << interpreted_program_options.model_type<< std::endl;
