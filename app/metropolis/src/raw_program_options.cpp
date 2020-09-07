@@ -15,12 +15,6 @@ void emit_help(std::ostream& s,
 }
 }  // namespace
 
-std::string model;
-unsigned n_thermal;
-unsigned n_average;
-unsigned ising_multiplicity;
-std::string path_to_chached_data;
-
 ProgramOptions grep_program_options(int argc, char** argv) {
     ProgramOptions program_options;
     // standard arguments:
@@ -33,10 +27,10 @@ ProgramOptions grep_program_options(int argc, char** argv) {
              boost::program_options::value<std::string>(&program_options.temerature_steps_string)->default_value("(0.0,0.2)@0.1;[0.2,0.7)@0.05;[0.7,1)@0.1;1"))
             // --n_thermal,-t:
             ("n_thermal,t",
-             boost::program_options::value<unsigned>(&program_options.n_thermal_steps)->default_value(1e4))
+             boost::program_options::value<std::string>(&program_options.n_thermal_steps_string)->default_value("10k"))
             // --n_average,-a:
             ("n_average,a",
-             boost::program_options::value<unsigned>(&program_options.n_average_steps)->default_value(1e5))
+             boost::program_options::value<std::string>(&program_options.n_average_steps_string)->default_value("100k"))
             // --model,-m:
             ("model,m",
              boost::program_options::value<std::string>(&program_options.model)->default_value("ising::doublet"))

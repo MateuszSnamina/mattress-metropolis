@@ -1,8 +1,12 @@
 // SELF:
 #include <metropolis/interpret_steps_string.hpp>
+// METROPOLIS:
+#include <metropolis/interpret_number_string.hpp>
+// UTILITY:
+#include <utility/result.hpp>
 // BOOST:
 #include <boost/algorithm/string.hpp>
-#include <boost/lexical_cast.hpp>
+#include <boost/lexical_cast.hpp>//TODO remove
 // STL:
 #include <vector>
 // STD:
@@ -10,8 +14,11 @@
 #include <regex>
 #include <variant>
 #include <optional>
-#include <stdexcept>
 #include <iostream>
+
+//**********************************************************************
+//***   SpanTermination, parse_span_termination                      ***
+//**********************************************************************
 
 namespace {
 
@@ -19,32 +26,6 @@ enum class SpanTermination {
     Inclusive,
     Exclusive
 };
-
-struct SpanTokenData {
-    std::pair<SpanTermination, SpanTermination> opening_closing;
-    std::pair<double, double> from_to;
-    double step;
-};
-
-struct ValueTokenData {
-    double value;
-};
-
-struct TokenStageResults {
-    bool ok_flag;
-    std::string message;
-    std::vector<std::string> tokens_string;
-    std::vector<std::variant<SpanTokenData, ValueTokenData>> tokens_data;
-
-};
-
-std::optional<double> parse_double(const std::string& s) {
-    try {
-        return boost::lexical_cast<double>(s);
-    } catch (boost::bad_lexical_cast&) {
-        return std::nullopt;
-    }
-}
 
 std::optional<SpanTermination> parse_span_termination(const std::string& s) {
     if (s == "[" || s == "]") {
@@ -56,7 +37,35 @@ std::optional<SpanTermination> parse_span_termination(const std::string& s) {
     return std::nullopt;
 }
 
-TokenStageResults interpret_steps_string_stage_1(const std::string& steps_string) {
+}
+
+//**********************************************************************
+//***   SpanTokenData, interpret_steps_string_stage_1                ***
+//**********************************************************************
+
+namespace {
+
+struct SpanTokenData {
+    std::pair<SpanTermination, SpanTermination> opening_closing;
+    std::pair<double, double> from_to;
+    double step;
+};
+
+struct ValueTokenData {
+    double value;
+};
+
+using TokensVectorT = std::vector<std::variant<SpanTokenData, ValueTokenData>>;
+
+//struct TokenStageResults {
+//    bool ok_flag;
+//    std::string message;
+//    std::vector<std::variant<SpanTokenData, ValueTokenData>> tokens_data;
+//};
+
+utility::Result<TokensVectorT, std::domain_error>
+interpret_steps_string_stage_1(const std::string& steps_string) {
+    using ResultT = utility::Result<TokensVectorT, std::domain_error>;
     std::vector<std::string> tokens_string;
     std::vector<std::variant<SpanTokenData, ValueTokenData>> tokens_data;
     boost::split(tokens_string, steps_string, boost::is_any_of(";"));
@@ -78,9 +87,9 @@ TokenStageResults interpret_steps_string_stage_1(const std::string& steps_string
             //std::cout << "from_string: " << from_string << std::endl;
             //std::cout << "to_string: " << to_string << std::endl;
             //std::cout << "step_string: " << step_string << std::endl;
-            const auto from_optional = parse_double(from_string);
-            const auto to_optional = parse_double(to_string);
-            const auto step_optional = parse_double(step_string);
+            const auto from_optional = interpret_double_string(from_string);
+            const auto to_optional = interpret_double_string(to_string);
+            const auto step_optional = interpret_double_string(step_string);
             const auto opening_optional = parse_span_termination(opening_string);
             const auto closing_optional = parse_span_termination(closing_string);
             if (!opening_optional) {
@@ -93,19 +102,20 @@ TokenStageResults interpret_steps_string_stage_1(const std::string& steps_string
                 const std::string message1 = "Problem with parsing token '" + token + "'.";
                 const std::string message2 = "Cannot cast from string '" + from_string + "' into a number.";
                 const std::string message = message1 + " " + message2;
-                return {false, message, tokens_string, tokens_data};
+                return ResultT::Err(std::domain_error(message));
             }
             if (!to_optional) {
                 const std::string message1 = "Problem with parsing token '" + token + "'.";
                 const std::string message2 = "Cannot cast to string '" + to_string + "' into a number.";
                 const std::string message = message1 + " " + message2;
-                return {false, message, tokens_string, tokens_data};
+                return ResultT::Err(std::domain_error(message));
+
             }
             if (!step_optional) {
                 const std::string message1 = "Problem with parsing token '" + token + "'.";
                 const std::string message2 = "Cannot cast step string '" + step_string + "' into a number.";
                 const std::string message = message1 + " " + message2;
-                return {false, message, tokens_string, tokens_data};
+                return ResultT::Err(std::domain_error(message));
             }
             SpanTokenData token_data{
                 {*opening_optional, *closing_optional},
@@ -116,12 +126,12 @@ TokenStageResults interpret_steps_string_stage_1(const std::string& steps_string
         }
         if (std::regex_match(token, m, value_token_regex) ) {
             //std::cout << "  Identified value token." << std::endl;
-            const auto value_optional = parse_double(token);
+            const auto value_optional = interpret_double_string(token);
             if (!value_optional) {
                 const std::string message1 = "Problem with parsing token '" + token + "'.";
                 const std::string message2 = "Cannot cast value string '" + token + "' into a number.";
                 const std::string message = message1 + " " + message2;
-                return {false, message, tokens_string, tokens_data};
+                return ResultT::Err(std::domain_error(message));
             }
             ValueTokenData token_data{*value_optional};
             tokens_data.push_back(token_data);
@@ -129,10 +139,10 @@ TokenStageResults interpret_steps_string_stage_1(const std::string& steps_string
         }
         {
             const std::string message = "Problem with parsing token '" + token + "'.";
-            return {false, message, tokens_string, tokens_data};
+            return ResultT::Err(std::domain_error(message));
         }
     }
-    return {true, "ok", tokens_string, tokens_data};
+    return ResultT::Ok(tokens_data);
 }
 
 struct StepsAppender {
@@ -180,10 +190,13 @@ std::vector<double> interpret_steps_string_stage_2(
 
 } // namespae
 
-std::vector<double> interpret_steps_string(const std::string& steps_string){
+utility::Result<std::vector<double>, std::domain_error> interpret_steps_string(const std::string& steps_string){
+    using ResultT = utility::Result<std::vector<double>, std::domain_error>;
     const auto steps_parse_results = interpret_steps_string_stage_1(steps_string);
-    if (!steps_parse_results.ok_flag) {
-        throw std::domain_error(steps_parse_results.message);
+    if (steps_parse_results) {
+        const std::vector<double> steps = interpret_steps_string_stage_2(steps_parse_results.unwrap());
+        return ResultT::Ok(steps);
+    } else {
+        return ResultT::Err(steps_parse_results.unwrap_err());
     }
-    return interpret_steps_string_stage_2(steps_parse_results.tokens_data);
 }

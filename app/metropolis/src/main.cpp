@@ -13,6 +13,7 @@
 // STD:
 #include<iostream>
 #include<chrono>
+#include<exception>
 
 constexpr unsigned N = 10;
 constexpr unsigned M = 10;
@@ -92,38 +93,48 @@ do_main_temperature_loop(
 
 
 int main(int argc, char** argv) {
-    // ******************************************************************
-    const ProgramOptions program_options = grep_program_options(argc, argv);
-    // ******************************************************************
-    std::cout << "[INFO   ] [PROGRAM_OPTIONS] temerature_steps_string = " << program_options.temerature_steps_string << std::endl;
-    std::cout << "[INFO   ] [PROGRAM_OPTIONS] n_thermal_steps         = " << program_options.n_thermal_steps << std::endl;
-    std::cout << "[INFO   ] [PROGRAM_OPTIONS] n_average_steps         = " << program_options.n_average_steps << std::endl;
-    std::cout << "[INFO   ] [PROGRAM_OPTIONS] model                   = " << program_options.model << std::endl;
-    std::cout << "[INFO   ] [PROGRAM_OPTIONS] ising_multiplicity      = " << program_options.ising_multiplicity << std::endl;
-    std::cout << "[INFO   ] [PROGRAM_OPTIONS] path_to_chached_data    = " << program_options.path_to_chached_data << std::endl;
-    // ******************************************************************
-    const InterpretedProgramOptions interpreted_program_options = interpret_program_options(program_options);
-    // ******************************************************************
-    std::cout << "[INFO   ] [PROGRAM_OPTIONS] temerature_steps = ";
-    for (const auto temperatue : interpreted_program_options.temerature_steps) {
-        std::cout << temperatue << ", ";
+    try {
+        // ******************************************************************
+        const ProgramOptions program_options = grep_program_options(argc, argv);
+        // ******************************************************************
+        //        std::cout << "[INFO   ] [PROGRAM_OPTIONS] temerature_steps_string = " << program_options.temerature_steps_string << std::endl;
+        //        std::cout << "[INFO   ] [PROGRAM_OPTIONS] n_thermal_steps         = " << program_options.n_thermal_steps_string << std::endl;
+        //        std::cout << "[INFO   ] [PROGRAM_OPTIONS] n_average_steps         = " << program_options.n_average_steps_string << std::endl;
+        //        std::cout << "[INFO   ] [PROGRAM_OPTIONS] model                   = " << program_options.model << std::endl;
+        //        std::cout << "[INFO   ] [PROGRAM_OPTIONS] ising_multiplicity      = " << program_options.ising_multiplicity << std::endl;
+        //        std::cout << "[INFO   ] [PROGRAM_OPTIONS] path_to_chached_data    = " << program_options.path_to_chached_data << std::endl;
+        // ******************************************************************
+        const InterpretedProgramOptions interpreted_program_options = interpret_program_options(program_options);
+        // ******************************************************************
+        std::cout << "[INFO   ] [PROGRAM_OPTIONS] temerature_steps = ";
+        for (const auto temperatue : interpreted_program_options.temerature_steps) {
+            std::cout << temperatue << ", ";
+        }
+        std::cout << std::endl;
+        // ******************************************************************
+        std::cout << "[INFO   ] [PROGRAM_OPTIONS] n_thermal_steps         = " << interpreted_program_options.n_thermal_steps << std::endl;
+        std::cout << "[INFO   ] [PROGRAM_OPTIONS] n_average_steps         = " << interpreted_program_options.n_average_steps << std::endl;
+        // ******************************************************************
+        //SET MODEL AND ENERGY GETTERS: TODO
+        const energy::ising::doublet::FourNnPartsEnergyGetter parts_energy_getter;
+        //const energy::ising::multiplet::FourNnPartsEnergyGetter parts_energy_getter{2};
+        const energy::getter::BoardEnergyGetter<N, M>& board_energy_getter =
+                energy::getter::FourNnBoardEnergyGetter<N, M>{parts_energy_getter};
+        const energy::getter::NeighbourhoodEnergyGetter<7, 7>& neighbourhood_energy_getter =
+                energy::getter::FourNnNeighbourhoodEnergyGetter{parts_energy_getter};
+        // ******************************************************************
+        const auto all_results = do_main_temperature_loop(
+                    interpreted_program_options.temerature_steps,
+                    board_energy_getter,
+                    neighbourhood_energy_getter,
+                    interpreted_program_options.n_thermal_steps,
+                    interpreted_program_options.n_average_steps);
+        // ******************************************************************
+        std::cout << "[INFO   ] Normal termination." << std::endl;
+        return 0;
+    } catch (std::exception& e) {
+        std::cerr << "[ERROR  ] Abnormal termination!" << std::endl;
+        std::cerr << e.what() << std::endl;
+        return 1;
     }
-    std::cout << std::endl;
-    // ******************************************************************
-    //SET MODEL AND ENERGY GETTERS: TODO
-    const energy::ising::doublet::FourNnPartsEnergyGetter parts_energy_getter;
-    //const energy::ising::multiplet::FourNnPartsEnergyGetter parts_energy_getter{2};
-    const energy::getter::BoardEnergyGetter<N, M>& board_energy_getter =
-            energy::getter::FourNnBoardEnergyGetter<N, M>{parts_energy_getter};
-    const energy::getter::NeighbourhoodEnergyGetter<7, 7>& neighbourhood_energy_getter =
-            energy::getter::FourNnNeighbourhoodEnergyGetter{parts_energy_getter};
-    // ******************************************************************
-    const auto all_results = do_main_temperature_loop(
-                interpreted_program_options.temerature_steps,
-                board_energy_getter,
-                neighbourhood_energy_getter,
-                interpreted_program_options.n_thermal_steps,
-                interpreted_program_options.n_average_steps);
-    // ******************************************************************
-    return 0;
 }

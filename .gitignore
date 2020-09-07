@@ -71,3 +71,6 @@ Thumbs.db
 *.dll
 *.exe
 
+app/build_release
+app/build_debug
+

@@ -138,6 +138,7 @@ message("-----------------------------------")
 message("---  the project  -----------------")
 message("-----------------------------------")
 
+add_subdirectory(utility)
 add_subdirectory(extensions)
 add_subdirectory(numboard)
 add_subdirectory(numboard_tests)
