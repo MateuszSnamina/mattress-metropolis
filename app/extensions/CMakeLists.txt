@@ -1,5 +1,4 @@
 message("...................................")
-include(${CMAKE_SOURCE_DIR}/cmake/common.cmake)
 get_filename_component(TARGET_NAME "${CMAKE_CURRENT_LIST_DIR}" NAME)
 message("CMake is about to process: ${TARGET_NAME}")
 
