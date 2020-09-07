@@ -1,0 +1,4 @@
+#pragma once
+
+const unsigned N = @N@;
+const unsigned M = @M@;

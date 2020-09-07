@@ -1,18 +1,34 @@
-
-#include <boost/program_options.hpp>
-
-
-#include <iostream>
-
+// METRPOPOLIS:
+#include <metropolis/nm.hpp>
 #include <metropolis/raw_program_options.hpp>
+#include <metropolis/interpret_energy_getter_type_string.hpp>
+#include <metropolis/interpret_model_type_string.hpp>
+// EXTENSIONS:
+#include <extensions/range_streamer.hpp>
+// BOOST:
+#include <boost/range/adaptor/map.hpp>
+#include <boost/program_options.hpp>
+// STD:
+#include <iostream>
 
 namespace {
 
 void emit_help(std::ostream& s,
                const boost::program_options::options_description& desc) {
-    s << "Program: metropolis" << std::endl;
+    s << "Program: metropolis " << N << "x" << M << "." << std::endl;
     s << desc << std::endl;
+    const std::string possible_values_energy_getter_type_string = extension::boost::RangeStringStreamer()
+                         .set_stream_sustainer([](::std::ostream&, size_t){})
+                         .set_stream_separer([](::std::ostream& s){ s << ", ";})
+                         .stream(interpret_energy_getter_type_string_map | boost::adaptors::map_keys).str();
+    const std::string possible_values_model_type_string = extension::boost::RangeStringStreamer()
+                         .set_stream_sustainer([](::std::ostream&, size_t){})
+                         .set_stream_separer([](::std::ostream& s){ s << ", ";})
+                         .stream(interpret_model_type_string_map | boost::adaptors::map_keys).str();
+    std::cout << "Possible values of energy_getter_type string: " << possible_values_energy_getter_type_string << "." << std::endl;
+    std::cout << "Possible values of model_type string: " << possible_values_model_type_string << "." << std::endl;
 }
+
 }  // namespace
 
 RawProgramOptions grep_program_options(int argc, char** argv) {
@@ -45,9 +61,10 @@ RawProgramOptions grep_program_options(int argc, char** argv) {
              boost::program_options::value<std::string>(&program_options.path_to_chached_data)->default_value("data.yaml"));
     boost::program_options::positional_options_description p;
     // positional arguments:
-    p.add("model", 1);
+    p.add("temperature_steps", 1);
     p.add("n_thermal", 1);
     p.add("n_average", 1);
+    p.add("model", 1);
     boost::program_options::variables_map vm;
     try {
         boost::program_options::store(

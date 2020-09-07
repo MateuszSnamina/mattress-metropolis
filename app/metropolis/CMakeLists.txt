@@ -19,4 +19,8 @@ target_link_libraries("${TARGET_NAME}"
   Boost::program_options
 )
 
+set(N 10 CACHE STRING "The board size N.")
+set(M 10 CACHE STRING "The board size M.")
+configure_file("include/metropolis/nm.hpp.in" "${CMAKE_CURRENT_LIST_DIR}/include/metropolis/nm.hpp" @ONLY)
+
 message("CMake has processed: ${TARGET_NAME}")

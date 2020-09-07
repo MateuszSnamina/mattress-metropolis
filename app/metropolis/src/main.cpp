@@ -1,4 +1,5 @@
 // METRPOPOLIS:
+#include <metropolis/nm.hpp>
 #include <metropolis/raw_program_options.hpp>
 #include <metropolis/interpreted_program_options.hpp>
 // METRPOPOLIS-ENGINE:
@@ -17,8 +18,6 @@
 #include<chrono>
 #include<exception>
 
-constexpr unsigned N = 10;
-constexpr unsigned M = 10;
 //const double ising_tc = 1 / 2 / std::log(1 + std::sqrt(2));
 
 void print(const double temperatue,
@@ -100,6 +99,7 @@ int main(int argc, char** argv) {
         const RawProgramOptions raw_program_options = grep_program_options(argc, argv);
         const InterpretedProgramOptions interpreted_program_options = interpret_program_options(raw_program_options);
         // ******************************************************************
+        std::cout << "[INFO   ] board sieze                                  = " << N << "x" << M << std::endl;
         std::cout << "[INFO   ] [PROGRAM_OPTIONS] temerature_steps           = "
                   << extension::boost::RangeStringStreamer()
                      .set_stream_sustainer([](::std::ostream& s, size_t i){})
