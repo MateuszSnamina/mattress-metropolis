@@ -39,7 +39,7 @@ protected:
 public:
     virtual double get_horizonal_bond_energy(const numboard::NumboardView<1, 2>& part) const = 0;
     virtual double get_vertical_bond_energy(const numboard::NumboardView<2, 1>& part) const = 0;
-    virtual double get_on_site_energy(const numboard::NumboardView<3, 3>& part) const {
+    virtual double get_on_site_energy(const numboard::NumboardView<1, 1>& part) const {
         return 0.0;
     }
 };
@@ -62,7 +62,7 @@ public:
         energy += _parts_energy_getter->get_horizonal_bond_energy(numboard::NumboardSubViewFactory<1, 2>::from_corner(neighborhood, In<3>(1), In<3>(1)));
         energy += _parts_energy_getter->get_vertical_bond_energy(numboard::NumboardSubViewFactory<2, 1>::from_corner(neighborhood, In<3>(0), In<3>(1)));
         energy += _parts_energy_getter->get_vertical_bond_energy(numboard::NumboardSubViewFactory<2, 1>::from_corner(neighborhood, In<3>(1), In<3>(1)));
-        energy += _parts_energy_getter->get_on_site_energy(neighborhood);
+        energy += _parts_energy_getter->get_on_site_energy(numboard::NumboardSubViewFactory<1, 1>::from_corner(neighborhood, In<3>(1), In<3>(1)));
         return energy;
     }
     double get_board_energy(const numboard::NumboardView<N, M>& board) const override {
@@ -83,7 +83,7 @@ public:
         // on-site energy:
         for (unsigned a = 0; a < N; a++) {
             for (unsigned b = 0; b < M; b++) {
-                energy += _parts_energy_getter->get_on_site_energy(numboard::NumboardSubViewFactory<3, 3>::from_center(board, In<N>(a), In<M>(b)));
+                energy += _parts_energy_getter->get_on_site_energy(numboard::NumboardSubViewFactory<1, 1>::from_center(board, In<N>(a), In<M>(b)));
             }
         }
         return energy;
@@ -156,8 +156,12 @@ public:
         // right vertical bonds:
         energy += _parts_energy_getter->get_vertical_bond_energy(numboard::NumboardSubViewFactory<4, 3>::from_corner(neighborhood, In<7>(1), In<7>(3)));
         energy += _parts_energy_getter->get_vertical_bond_energy(numboard::NumboardSubViewFactory<4, 3>::from_corner(neighborhood, In<7>(2), In<7>(3)));
-        // on-site energy: //TODO:
-        energy += _parts_energy_getter->get_on_site_energy(numboard::NumboardSubViewFactory<3, 3>::from_center(neighborhood, In<7>(3), In<7>(3)));
+        // on-site energy:
+        energy += _parts_energy_getter->get_on_site_energy(numboard::NumboardSubViewFactory<3, 3>::from_center(neighborhood, In<7>(3), In<7>(3))); // energy on site (3,3) (the center site)
+        energy += _parts_energy_getter->get_on_site_energy(numboard::NumboardSubViewFactory<3, 3>::from_corner(neighborhood, In<7>(1), In<7>(2))); // energy on site (2,3)
+        energy += _parts_energy_getter->get_on_site_energy(numboard::NumboardSubViewFactory<3, 3>::from_corner(neighborhood, In<7>(3), In<7>(2))); // energy on site (4,3)
+        energy += _parts_energy_getter->get_on_site_energy(numboard::NumboardSubViewFactory<3, 3>::from_corner(neighborhood, In<7>(2), In<7>(1))); // energy on site (3,2)
+        energy += _parts_energy_getter->get_on_site_energy(numboard::NumboardSubViewFactory<3, 3>::from_corner(neighborhood, In<7>(2), In<7>(3))); // energy on site (3,4)
         return energy;
     }
     double get_board_energy(const numboard::NumboardView<N, M>& board) const override {
