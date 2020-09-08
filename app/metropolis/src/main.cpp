@@ -69,7 +69,6 @@ get_nn_mm_3_energy_getters(const InterpretedProgramOptions& interpreted_program_
 
 std::optional<std::unique_ptr<energy::getter::EnergyGetter<GLOBAL_N, GLOBAL_M, 7, 7>>>
 get_nn_mm_7_energy_getters(const InterpretedProgramOptions& interpreted_program_options) {
-    using ResultT = std::optional<std::unique_ptr<energy::getter::EnergyGetter<GLOBAL_N, GLOBAL_M, 7, 7>>>;
     const ModelType& model_type = interpreted_program_options.model_type;
     const EnergyGetterType& energy_getter_type = interpreted_program_options.energy_getter_type;
     if (energy_getter_type == EnergyGetterType::FourNn) {
@@ -81,11 +80,7 @@ get_nn_mm_7_energy_getters(const InterpretedProgramOptions& interpreted_program_
         } if (model_type == ModelType::Parametrized) {
             assert(false); //TODO implement
         }
-        //        std::unique_ptr<energy::getter::BoardEnergyGetter<GLOBAL_N, GLOBAL_M>> board_energy_getter =
-        //                std::make_unique<energy::getter::FourNnBoardEnergyGetter<GLOBAL_N, GLOBAL_M>>(*parts_energy_getter);
-        //        std::unique_ptr<energy::getter::NeighbourhoodEnergyGetter<7, 7>> neighbourhood_energy_getter =
-        //                std::make_unique<energy::getter::FourNnNeighbourhoodEnergyGetter>(*parts_energy_getter);
-        //        return ResultT::value_type(std::move(board_energy_getter), std::move(neighbourhood_energy_getter));
+        return  std::make_unique<energy::getter::FourNnEnergyGetter<GLOBAL_N, GLOBAL_M>>(std::move(parts_energy_getter));
     }
     if (energy_getter_type == EnergyGetterType::EightNn) {
         assert(false); //TODO implement
