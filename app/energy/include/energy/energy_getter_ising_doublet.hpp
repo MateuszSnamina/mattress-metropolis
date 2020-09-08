@@ -44,7 +44,7 @@ public:
 
 namespace energy::ising::doublet {
 
-class ZeroNnPartsEnergyGetter : public energy::ising::common::ZeroNnPartsEnergyGetterHelper<IsingDoubletBinaryFunctor, IsingDoubletUnaryFunctor> {
+class ZeroNnPartsEnergyGetter final : public energy::ising::common::ZeroNnPartsEnergyGetterHelper<IsingDoubletBinaryFunctor, IsingDoubletUnaryFunctor> {
 private:
     ZeroNnPartsEnergyGetter() :
         ZeroNnPartsEnergyGetterHelper(IsingDoubletBinaryFunctor(), IsingDoubletUnaryFunctor()) {
@@ -63,7 +63,7 @@ public:
 
 namespace energy::ising::doublet {
 
-class FourNnPartsEnergyGetter : public energy::ising::common::FourNnPartsEnergyGetterHelper<IsingDoubletBinaryFunctor, IsingDoubletUnaryFunctor> {
+class FourNnPartsEnergyGetter final : public energy::ising::common::FourNnPartsEnergyGetterHelper<IsingDoubletBinaryFunctor, IsingDoubletUnaryFunctor> {
 private:
     FourNnPartsEnergyGetter() :
         FourNnPartsEnergyGetterHelper(IsingDoubletBinaryFunctor(), IsingDoubletUnaryFunctor()) {

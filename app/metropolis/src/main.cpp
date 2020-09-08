@@ -26,6 +26,7 @@
 void print(const double temperatue,
            const metropolis_engine::MetropolisEngineStatisticalAccumulator& results,
            const double simulation_time_sec) {
+    const extension::std::StreamFromatStacker stream_format_stacker(std::cout);
     const double beta = 1 / temperatue;
     const double average_energy = results.get_average_energy();
     const double average_sq_energy = results.get_average_sq_energy();
@@ -33,14 +34,16 @@ void print(const double temperatue,
     const double specific_heat = average_sigma_energy * beta * beta;
     //const double average_magnetization = results.get_average_magnetization();
     const double average_abs_magnetization = results.get_average_abs_magnetization();
-    std::cout << "[FLOW   ] │├ simulation time: " << simulation_time_sec << "[s]" << std::endl;
-    // std::cout << "[FLOW   ] │├ steps:        " << results.get_steps() << std::endl;
-    std::cout << "[FLOW   ] │├ E(" << temperatue << "):   " << average_energy / (GLOBAL_N * GLOBAL_M) << std::endl;
-    //std::cout << "[FLOW   ] │├ E^2(" << temperatue << "): " << average_sq_energy / (N * M) << std::endl;
-    std::cout << "[FLOW   ] │├ σE(" << temperatue << "):  " << average_sigma_energy / (GLOBAL_N * GLOBAL_M) << std::endl;
-    std::cout << "[FLOW   ] │├ C(" << temperatue << "):   " << specific_heat / (GLOBAL_N * GLOBAL_M) << std::endl;
-    //std::cout << "[FLOW   ] │├ M(" << temperatue << "):   " << average_magnetization / (N * M) << std::endl;
-    std::cout << "[FLOW   ] │├ |M|(" << temperatue << "): " << average_abs_magnetization / (GLOBAL_N * GLOBAL_M) << std::endl;
+    std::cout << "[FLOW   ] " << "│├ " << std::setw(31) << std::left << "T, β:" << temperatue << ", " << beta << std::endl;
+ // std::cout << "[FLOW   ] " << "│├ " << std::setw(30) << std::left << "steps:" << results.get_steps() << std::endl;
+    std::cout << "[FLOW   ] " << "│├ " << std::setw(30) << std::left << "E(" + std::to_string(temperatue) + "):" << average_energy / (GLOBAL_N * GLOBAL_M) << std::endl;
+  //std::cout << "[FLOW   ] " << "│├ " << std::setw(30) << std::left << "E^2(" + std::to_string(temperatue) + "):" << average_sq_energy / (N * M) << std::endl;
+    std::cout << "[FLOW   ] " << "│├ " << std::setw(31) << std::left << "σE(" + std::to_string(temperatue) + "):" << average_sigma_energy / (GLOBAL_N * GLOBAL_M) << std::endl;
+    std::cout << "[FLOW   ] " << "│├ " << std::setw(30) << std::left << "C(" + std::to_string(temperatue) + "):" << specific_heat / (GLOBAL_N * GLOBAL_M) << std::endl;
+  //std::cout << "[FLOW   ] " << "│├ " << std::setw(30) << std::left << "M(" + std::to_string(temperatue) + "):" << average_magnetization / (N * M) << std::endl;
+    std::cout << "[FLOW   ] " << "│├ " << std::setw(30) << std::left << "|M|(" + std::to_string(temperatue) + "):" << average_abs_magnetization / (GLOBAL_N * GLOBAL_M) << std::endl;
+    std::cout << "[FLOW   ] " << "│├ " << std::setw(30) << std::left << "simulation time:" << simulation_time_sec << "[s]" << std::endl;
+
 }
 
 std::optional<std::unique_ptr<energy::getter::EnergyGetter<GLOBAL_N, GLOBAL_M, 3, 3>>>
@@ -119,7 +122,7 @@ do_main_temperature_loop(
         const double temperatue = temperatue_index.value();
         const double index = temperatue_index.index();
         const double beta = 1.0 / temperatue;
-        std::cout << "[FLOW   ] ├temperature, beta, {#/#}: " << temperatue << ", " << beta << ", {" << index << "/" << temerature_steps.size() << "}" <<std::endl;
+        std::cout << "[FLOW   ] " << "├ {#/#}:" << " {" << index << "/" << temerature_steps.size() << "}" <<std::endl;
         const std::chrono::steady_clock::time_point calculation_time_begin = std::chrono::steady_clock::now();
         const auto results = do_calculations<N, M, NN, MM>(beta, energy_getter,
                                                            n_thermal_steps, n_average_steps);
@@ -163,14 +166,12 @@ int main(int argc, char** argv) {
         print_input_data(interpreted_program_options);
         // ******************************************************************
         if (auto energy_getter = get_nn_mm_3_energy_getters(interpreted_program_options)) {
-            std::cout << "AAAAA" << std::endl;
             const auto all_results = do_main_temperature_loop<GLOBAL_N, GLOBAL_M, 3, 3>(
                         interpreted_program_options.temerature_steps,
                         **energy_getter,
                         interpreted_program_options.n_thermal_steps,
                         interpreted_program_options.n_average_steps);
         } else if (auto energy_getter = get_nn_mm_7_energy_getters(interpreted_program_options)) {
-            std::cout << "BBBBBB" << std::endl;
             const auto all_results = do_main_temperature_loop<GLOBAL_N, GLOBAL_M, 7, 7>(
                         interpreted_program_options.temerature_steps,
                         **energy_getter,

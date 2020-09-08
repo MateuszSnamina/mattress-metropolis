@@ -60,7 +60,7 @@ private:
 
 namespace energy::ising::multiplet {
 
-class ZeroNnPartsEnergyGetter : public energy::ising::common::ZeroNnPartsEnergyGetterHelper<IsingMultipletBinaryFunctor, IsingMultipletUnaryFunctor> {
+class ZeroNnPartsEnergyGetter final : public energy::ising::common::ZeroNnPartsEnergyGetterHelper<IsingMultipletBinaryFunctor, IsingMultipletUnaryFunctor> {
 private:
     explicit ZeroNnPartsEnergyGetter(unsigned multiplicity) :
         ZeroNnPartsEnergyGetterHelper(IsingMultipletBinaryFunctor(multiplicity), IsingMultipletUnaryFunctor(multiplicity)) {
@@ -80,7 +80,7 @@ public:
 
 namespace energy::ising::multiplet {
 
-class FourNnPartsEnergyGetter : public energy::ising::common::FourNnPartsEnergyGetterHelper<IsingMultipletBinaryFunctor, IsingMultipletUnaryFunctor> {
+class FourNnPartsEnergyGetter final : public energy::ising::common::FourNnPartsEnergyGetterHelper<IsingMultipletBinaryFunctor, IsingMultipletUnaryFunctor> {
 private:
     explicit FourNnPartsEnergyGetter(unsigned multiplicity) :
         FourNnPartsEnergyGetterHelper(IsingMultipletBinaryFunctor(multiplicity), IsingMultipletUnaryFunctor(multiplicity)) {
