@@ -184,7 +184,7 @@ int main(int argc, char** argv) {
                 std::make_unique<energy::ising::doublet::FourNnPartsEnergyGetter>();
         //const energy::ising::multiplet::FourNnPartsEnergyGetter parts_energy_getter{2};
         std::unique_ptr<energy::getter::EnergyGetter<GLOBAL_N, GLOBAL_M, 7, 7>> energy_getter =
-                std::make_unique<energy::getter::FourNnEnergyGetter<GLOBAL_N, GLOBAL_M>>(*parts_energy_getter);
+                std::make_unique<energy::getter::FourNnEnergyGetter<GLOBAL_N, GLOBAL_M>>(std::move(parts_energy_getter));
         // ******************************************************************
         const auto all_results = do_main_temperature_loop<GLOBAL_N, GLOBAL_M, 7, 7>(
                     interpreted_program_options.temerature_steps,

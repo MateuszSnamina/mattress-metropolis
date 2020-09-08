@@ -22,7 +22,7 @@ double get_dublet_ising_result(
 }
 
 //**********************************************************************
-//***   SimplesIsingEnergyGetter                                     ***
+//***   ZeroNnPartsEnergyGetter                                      ***
 //**********************************************************************
 
 namespace energy::ising::doublet {
@@ -46,7 +46,7 @@ public:
 }
 
 //**********************************************************************
-//***   IsingPartsEnergyGetterFourNN                                 ***
+//***   FourNnPartsEnergyGetter                                      ***
 //**********************************************************************
 
 namespace energy::ising::doublet {

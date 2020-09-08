@@ -25,7 +25,7 @@ double get_multiplet_ising_result(
 }
 
 //**********************************************************************
-//***   SimplesIsingEnergyGetter                                     ***
+//***   ZeroNnPartsEnergyGetter                                      ***
 //**********************************************************************
 
 namespace energy::ising::multiplet {
@@ -54,7 +54,7 @@ private:
 }
 
 //**********************************************************************
-//***   IsingPartsEnergyGetterFourNN                                 ***
+//***   FourNnPartsEnergyGetter                                      ***
 //**********************************************************************
 
 namespace energy::ising::multiplet {

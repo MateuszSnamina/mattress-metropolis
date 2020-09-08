@@ -9,11 +9,13 @@
 #include<energy/energy_getter_ising_doublet.hpp>
 // STD:
 #include<iostream>
+#include<memory>
 
 TEST(Energy, IsingMultipletSimplesEnergyGetter) {
-    const energy::ising::multiplet::ZeroNnPartsEnergyGetter parts_energy_getter{1001};
+    std::unique_ptr<const energy::getter::ZeroNnPartsEnergyGetter> parts_energy_getter =
+            std::make_unique<const energy::ising::multiplet::ZeroNnPartsEnergyGetter>(1001);
+    const energy::getter::ZeroNnEnergyGetter<4, 4> energy_getter{std::move(parts_energy_getter)};
     {
-        const energy::getter::ZeroNnEnergyGetter<4, 4> energy_getter{parts_energy_getter};
         const auto& neighborhood = numboard_tests::prepare_board<3, 3>();
         //std::cout << numboard::NumboardStreamer(neighborhood);
         const double got_neighborhood_energy = energy_getter.get_neighborhood_energy(neighborhood);
@@ -23,7 +25,6 @@ TEST(Energy, IsingMultipletSimplesEnergyGetter) {
         ASSERT_DOUBLE_EQ(got_neighborhood_energy, expected_neighborhood_energy);
     }
     {
-        const energy::getter::ZeroNnEnergyGetter<4, 4> energy_getter{parts_energy_getter};
         const auto& board = numboard_tests::prepare_board<4, 4>();
         //std::cout << numboard::NumboardStreamer(board);
         const double got_board_energy = energy_getter.get_board_energy(board);
@@ -43,9 +44,10 @@ TEST(Energy, IsingMultipletSimplesEnergyGetter) {
 }
 
 TEST(Energy, IsingMultipletFourNnEnergyGetter) {
-    const energy::ising::multiplet::FourNnPartsEnergyGetter parts_energy_getter{1001};
+    std::unique_ptr<const energy::getter::FourNnPartsEnergyGetter> parts_energy_getter =
+            std::make_unique<const energy::ising::multiplet::FourNnPartsEnergyGetter>(1001);
+    const energy::getter::FourNnEnergyGetter<8, 7> energy_getter{std::move(parts_energy_getter)};
     {
-        const energy::getter::FourNnEnergyGetter<8, 7> energy_getter{parts_energy_getter};
         const auto& neighborhood = numboard_tests::prepare_board<7, 7>();
         //std::cout << numboard::NumboardStreamer(neighborhood);
         const double got_neighborhood_energy = energy_getter.get_neighborhood_energy(neighborhood);
@@ -65,7 +67,6 @@ TEST(Energy, IsingMultipletFourNnEnergyGetter) {
         ASSERT_DOUBLE_EQ(got_neighborhood_energy, expected_neighborhood_energy);
     }
     {
-        const energy::getter::FourNnEnergyGetter<8, 7> energy_getter{parts_energy_getter};
         const auto& board = numboard_tests::prepare_board<8, 7>();
         //std::cout << numboard::NumboardStreamer(board);
         const double got_board_energy = energy_getter.get_board_energy(board);
