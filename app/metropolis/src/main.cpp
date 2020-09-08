@@ -33,18 +33,32 @@ void print(const double temperatue,
     const double specific_heat = average_sigma_energy * beta * beta;
     //const double average_magnetization = results.get_average_magnetization();
     const double average_abs_magnetization = results.get_average_abs_magnetization();
-    std::cout << "[TREE]│├ simulation time: " << simulation_time_sec << "[s]" << std::endl;
-    // std::cout << "[TREE]│├ steps:        " << results.get_steps() << std::endl;
-    std::cout << "[TREE]│├ E(" << temperatue << "):   " << average_energy / (GLOBAL_N * GLOBAL_M) << std::endl;
-    //std::cout << "[TREE]│├ E^2(" << temperatue << "): " << average_sq_energy / (N * M) << std::endl;
-    std::cout << "[TREE]│├ σE(" << temperatue << "):  " << average_sigma_energy / (GLOBAL_N * GLOBAL_M) << std::endl;
-    std::cout << "[TREE]│├ C(" << temperatue << "):   " << specific_heat / (GLOBAL_N * GLOBAL_M) << std::endl;
-    //std::cout << "[TREE]│├ M(" << temperatue << "):   " << average_magnetization / (N * M) << std::endl;
-    std::cout << "[TREE]│├ |M|(" << temperatue << "): " << average_abs_magnetization / (GLOBAL_N * GLOBAL_M) << std::endl;
+    std::cout << "[FLOW   ] │├ simulation time: " << simulation_time_sec << "[s]" << std::endl;
+    // std::cout << "[FLOW   ] │├ steps:        " << results.get_steps() << std::endl;
+    std::cout << "[FLOW   ] │├ E(" << temperatue << "):   " << average_energy / (GLOBAL_N * GLOBAL_M) << std::endl;
+    //std::cout << "[FLOW   ] │├ E^2(" << temperatue << "): " << average_sq_energy / (N * M) << std::endl;
+    std::cout << "[FLOW   ] │├ σE(" << temperatue << "):  " << average_sigma_energy / (GLOBAL_N * GLOBAL_M) << std::endl;
+    std::cout << "[FLOW   ] │├ C(" << temperatue << "):   " << specific_heat / (GLOBAL_N * GLOBAL_M) << std::endl;
+    //std::cout << "[FLOW   ] │├ M(" << temperatue << "):   " << average_magnetization / (N * M) << std::endl;
+    std::cout << "[FLOW   ] │├ |M|(" << temperatue << "): " << average_abs_magnetization / (GLOBAL_N * GLOBAL_M) << std::endl;
 }
 
-std::optional<std::unique_ptr<energy::getter::EnergyGetter<GLOBAL_M, GLOBAL_N, 3, 3>>>
+std::optional<std::unique_ptr<energy::getter::EnergyGetter<GLOBAL_N, GLOBAL_M, 3, 3>>>
 get_nn_mm_3_energy_getters(const InterpretedProgramOptions& interpreted_program_options) {
+    const ModelType& model_type = interpreted_program_options.model_type;
+    const EnergyGetterType& energy_getter_type = interpreted_program_options.energy_getter_type;
+    if (energy_getter_type == EnergyGetterType::ZeroNn) {
+        std::unique_ptr<energy::getter::ZeroNnPartsEnergyGetter> parts_energy_getter;
+        if (model_type == ModelType::IsingDoublet) {
+            parts_energy_getter = energy::ising::doublet::ZeroNnPartsEnergyGetter::make();
+        } if (model_type == ModelType::IsingMultiplet) {
+            parts_energy_getter = energy::ising::multiplet::ZeroNnPartsEnergyGetter::make(interpreted_program_options.ising_multiplicity);
+        } if (model_type == ModelType::Parametrized) {
+            throw std::logic_error("NOT IMPLEMENTED ERROR -> ModelType::Parametrized");
+            assert(false); //TODO implement
+        }
+        return energy::getter::ZeroNnEnergyGetter<GLOBAL_N, GLOBAL_M>::make(std::move(parts_energy_getter));
+    }
     return std::nullopt;
 }
 
@@ -57,13 +71,15 @@ get_nn_mm_7_energy_getters(const InterpretedProgramOptions& interpreted_program_
         if (model_type == ModelType::IsingDoublet) {
             parts_energy_getter = energy::ising::doublet::FourNnPartsEnergyGetter::make();
         } if (model_type == ModelType::IsingMultiplet) {
-            parts_energy_getter = energy::ising::multiplet::FourNnPartsEnergyGetter::make(2);
+            parts_energy_getter = energy::ising::multiplet::FourNnPartsEnergyGetter::make(interpreted_program_options.ising_multiplicity);
         } if (model_type == ModelType::Parametrized) {
+            throw std::logic_error("NOT IMPLEMENTED ERROR (ModelType::Parametrized)");
             assert(false); //TODO implement
         }
         return energy::getter::FourNnEnergyGetter<GLOBAL_N, GLOBAL_M>::make(std::move(parts_energy_getter));
     }
     if (energy_getter_type == EnergyGetterType::EightNn) {
+        throw std::logic_error("NOT IMPLEMENTED ERROR (EnergyGetterType::EightNn)");
         assert(false); //TODO implement
     }
     return std::nullopt;
@@ -74,7 +90,7 @@ template<unsigned N, unsigned M, unsigned NN, unsigned MM>
 metropolis_engine::MetropolisEngineStatisticalAccumulator
 do_calculations(
         const double beta,
-        const energy::getter::EnergyGetter<N, M, 7, 7>& energy_getter,
+        const energy::getter::EnergyGetter<N, M, NN, MM>& energy_getter,
         const unsigned n_thermal_steps,
         const unsigned n_average_steps) {
     metropolis_engine::MetropolisEngine<N, M, NN, MM> engine(beta, energy_getter);
@@ -98,12 +114,12 @@ do_main_temperature_loop(
         const unsigned n_average_steps) {
     using IterationResult = std::pair<double, metropolis_engine::MetropolisEngineStatisticalAccumulator>;
     std::vector<IterationResult> all_results;
-    std::cout << "[TREE]temperatures loop" << std::endl;
+    std::cout << "[FLOW   ] temperatures loop" << std::endl;
     for (const auto& temperatue_index : temerature_steps | boost::adaptors::indexed(0)) {
         const double temperatue = temperatue_index.value();
         const double index = temperatue_index.index();
         const double beta = 1.0 / temperatue;
-        std::cout << "[TREE]├temperature, beta, {#/#}: " << temperatue << ", " << beta << ", {" << index << "/" << temerature_steps.size() << "}" <<std::endl;
+        std::cout << "[FLOW   ] ├temperature, beta, {#/#}: " << temperatue << ", " << beta << ", {" << index << "/" << temerature_steps.size() << "}" <<std::endl;
         const std::chrono::steady_clock::time_point calculation_time_begin = std::chrono::steady_clock::now();
         const auto results = do_calculations<N, M, NN, MM>(beta, energy_getter,
                                                            n_thermal_steps, n_average_steps);
@@ -146,25 +162,21 @@ int main(int argc, char** argv) {
         // ******************************************************************
         print_input_data(interpreted_program_options);
         // ******************************************************************
-        //SET MODEL AND ENERGY GETTERS: TODO
-        //        const energy::getter::FourNnPartsEnergyGetter& parts_energy_getter =
-        //                energy::ising::doublet::FourNnPartsEnergyGetter{};
-        //        //const energy::ising::multiplet::FourNnPartsEnergyGetter parts_energy_getter{2};
-        //        const energy::getter::BoardEnergyGetter<GLOBAL_N, GLOBAL_M>& board_energy_getter =
-        //                energy::getter::FourNnBoardEnergyGetter<GLOBAL_N, GLOBAL_M>{parts_energy_getter};
-        //        const energy::getter::NeighbourhoodEnergyGetter<7, 7>& neighbourhood_energy_getter =
-        //                energy::getter::FourNnNeighbourhoodEnergyGetter{parts_energy_getter};
-        // ******************************************************************
-        //SET MODEL AND ENERGY GETTERS: TODO
-        //auto parts_energy_getter = energy::ising::multiplet::FourNnPartsEnergyGetter::make(2);
-        auto parts_energy_getter = energy::ising::doublet::FourNnPartsEnergyGetter::make();
-        const auto energy_getter = energy::getter::FourNnEnergyGetter<GLOBAL_N, GLOBAL_M>::make(std::move(parts_energy_getter));
-        // ******************************************************************
-        const auto all_results = do_main_temperature_loop<GLOBAL_N, GLOBAL_M, 7, 7>(
-                    interpreted_program_options.temerature_steps,
-                    *energy_getter,
-                    interpreted_program_options.n_thermal_steps,
-                    interpreted_program_options.n_average_steps);
+        if (auto energy_getter = get_nn_mm_3_energy_getters(interpreted_program_options)) {
+            std::cout << "AAAAA" << std::endl;
+            const auto all_results = do_main_temperature_loop<GLOBAL_N, GLOBAL_M, 3, 3>(
+                        interpreted_program_options.temerature_steps,
+                        **energy_getter,
+                        interpreted_program_options.n_thermal_steps,
+                        interpreted_program_options.n_average_steps);
+        } else if (auto energy_getter = get_nn_mm_7_energy_getters(interpreted_program_options)) {
+            std::cout << "BBBBBB" << std::endl;
+            const auto all_results = do_main_temperature_loop<GLOBAL_N, GLOBAL_M, 7, 7>(
+                        interpreted_program_options.temerature_steps,
+                        **energy_getter,
+                        interpreted_program_options.n_thermal_steps,
+                        interpreted_program_options.n_average_steps);
+        }
         // ******************************************************************
         std::cout << "[INFO   ] Normal termination." << std::endl;
         return 0;
