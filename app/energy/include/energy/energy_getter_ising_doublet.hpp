@@ -28,7 +28,12 @@ double get_dublet_ising_result(
 namespace energy::ising::doublet {
 
 class ZeroNnPartsEnergyGetter : public energy::getter::ZeroNnPartsEnergyGetter {
+private:
+    ZeroNnPartsEnergyGetter() = default;
 public:
+    static std::unique_ptr<ZeroNnPartsEnergyGetter> make() {
+        return std::unique_ptr<ZeroNnPartsEnergyGetter>(new ZeroNnPartsEnergyGetter());
+    }
     double get_horizonal_bond_energy(const numboard::NumboardView<1, 2>& part) const {
         using numboard::In;
         const unsigned n_excitons_1 = part(In<1>(0), In<2>(0));
@@ -52,7 +57,12 @@ public:
 namespace energy::ising::doublet {
 
 class FourNnPartsEnergyGetter : public energy::getter::FourNnPartsEnergyGetter {
+private:
+    FourNnPartsEnergyGetter() = default;
 public:
+    static std::unique_ptr<FourNnPartsEnergyGetter> make() {
+       return std::unique_ptr<FourNnPartsEnergyGetter>(new FourNnPartsEnergyGetter());
+    }
     double get_horizonal_bond_energy(const numboard::NumboardView<3, 4>& part) const override {
         using numboard::In;
         const unsigned n_excitons_1 = part(In<3>(1), In<4>(1));

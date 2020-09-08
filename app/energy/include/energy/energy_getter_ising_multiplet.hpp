@@ -31,9 +31,13 @@ double get_multiplet_ising_result(
 namespace energy::ising::multiplet {
 
 class ZeroNnPartsEnergyGetter : public energy::getter::ZeroNnPartsEnergyGetter {
-public:
-    ZeroNnPartsEnergyGetter(unsigned multiplicity) : _multiplicity(multiplicity) {
+private:
+    explicit ZeroNnPartsEnergyGetter(unsigned multiplicity) : _multiplicity(multiplicity) {
         assert(multiplicity > 0);
+    }
+public:
+    static std::unique_ptr<ZeroNnPartsEnergyGetter> make(unsigned multiplicity) {
+        return std::unique_ptr<ZeroNnPartsEnergyGetter>(new ZeroNnPartsEnergyGetter(multiplicity));
     }
     double get_horizonal_bond_energy(const numboard::NumboardView<1, 2>& part) const {
         using numboard::In;
@@ -60,9 +64,13 @@ private:
 namespace energy::ising::multiplet {
 
 class FourNnPartsEnergyGetter : public energy::getter::FourNnPartsEnergyGetter {
-public:
-    FourNnPartsEnergyGetter(unsigned multiplicity) : _multiplicity(multiplicity) {
+private:
+    explicit FourNnPartsEnergyGetter(unsigned multiplicity) : _multiplicity(multiplicity) {
         assert(multiplicity > 0);
+    }
+public:
+    static std::unique_ptr<FourNnPartsEnergyGetter> make(unsigned multiplicity) {
+        return std::unique_ptr<FourNnPartsEnergyGetter>(new FourNnPartsEnergyGetter(multiplicity));
     }
     double get_horizonal_bond_energy(const numboard::NumboardView<3, 4>& part) const override {
         using numboard::In;

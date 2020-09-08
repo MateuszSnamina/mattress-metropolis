@@ -4,6 +4,7 @@
 #include<numboard/numboard.hpp>
 // STD:
 #include<memory>
+#include<cassert>
 
 //**********************************************************************
 //***   EnergyGetter -- abstract base clase                          ***
@@ -15,6 +16,8 @@ template<unsigned N, unsigned M, unsigned NN, unsigned MM>
 class EnergyGetter {
     static_assert (NN % 2 == 1);
     static_assert (MM % 2 == 1);
+protected:
+    EnergyGetter() = default;
 public:
     virtual double get_neighborhood_energy(const numboard::NumboardView<NN, MM>& neighborhood) const = 0;
     virtual double get_board_energy(const numboard::NumboardView<N, M>& board) const = 0;
@@ -31,6 +34,8 @@ public:
 namespace energy::getter {
 
 class ZeroNnPartsEnergyGetter {
+protected:
+    ZeroNnPartsEnergyGetter() = default;
 public:
     virtual double get_horizonal_bond_energy(const numboard::NumboardView<1, 2>& part) const = 0;
     virtual double get_vertical_bond_energy(const numboard::NumboardView<2, 1>& part) const = 0;
@@ -40,10 +45,15 @@ public:
 };
 
 template<unsigned N, unsigned M>
-class ZeroNnEnergyGetter : public EnergyGetter<N, M, 3, 3> {
-public:
-    ZeroNnEnergyGetter(std::unique_ptr<const ZeroNnPartsEnergyGetter>&& parts_energy_getter) :
+class ZeroNnEnergyGetter final : public EnergyGetter<N, M, 3, 3> {
+private:
+    explicit ZeroNnEnergyGetter(std::unique_ptr<const ZeroNnPartsEnergyGetter>&& parts_energy_getter) :
         _parts_energy_getter(std::move(parts_energy_getter)) {
+    }
+public:
+    static std::unique_ptr<ZeroNnEnergyGetter<N, M>> make(std::unique_ptr<const ZeroNnPartsEnergyGetter>&& parts_energy_getter) {
+        assert(parts_energy_getter);
+        return std::unique_ptr<ZeroNnEnergyGetter<N, M>>(new ZeroNnEnergyGetter<N, M>(std::move(parts_energy_getter)));
     }
     double get_neighborhood_energy(const numboard::NumboardView<3, 3>& neighborhood) const override {
         using numboard::In;
@@ -92,6 +102,8 @@ private:
 namespace energy::getter {
 
 class FourNnPartsEnergyGetter {
+protected:
+    FourNnPartsEnergyGetter() = default;
 public:
     virtual double get_horizonal_bond_energy(const numboard::NumboardView<3, 4>& part) const = 0;
     virtual double get_vertical_bond_energy(const numboard::NumboardView<4, 3>& part) const = 0;
@@ -109,11 +121,16 @@ public:
  */
 
 template<unsigned N, unsigned M>
-class FourNnEnergyGetter : public EnergyGetter<N, M, 7, 7> {
-public:
-    FourNnEnergyGetter(std::unique_ptr<const FourNnPartsEnergyGetter>&& parts_energy_getter) :
+class FourNnEnergyGetter final : public EnergyGetter<N, M, 7, 7> {
+private:
+    explicit FourNnEnergyGetter(std::unique_ptr<const FourNnPartsEnergyGetter>&& parts_energy_getter) :
         _parts_energy_getter(std::move(parts_energy_getter)) {
     };
+public:
+    static std::unique_ptr<FourNnEnergyGetter<N, M>> make(std::unique_ptr<const FourNnPartsEnergyGetter>&& parts_energy_getter) {
+        assert(parts_energy_getter);
+        return std::unique_ptr<FourNnEnergyGetter<N, M>>(new FourNnEnergyGetter<N, M>(std::move(parts_energy_getter)));
+    }
     double get_neighborhood_energy(const numboard::NumboardView<7, 7>& neighborhood) const override {
         using numboard::In;
         double energy = 0;

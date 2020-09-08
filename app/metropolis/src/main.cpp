@@ -43,27 +43,8 @@ void print(const double temperatue,
     std::cout << "[TREE]│├ |M|(" << temperatue << "): " << average_abs_magnetization / (GLOBAL_N * GLOBAL_M) << std::endl;
 }
 
-//TODO: remove
-//template<unsigned N, unsigned M, unsigned NN, unsigned MM>
-//struct EnergyGetters {
-//    EnergyGetters(
-//            std::unique_ptr<energy::getter::BoardEnergyGetter<N, M>>&& board_energy_getter,
-//            std::unique_ptr<energy::getter::NeighbourhoodEnergyGetter<NN, MM>>&& neighbourhood_energy_getter) :
-//        _board_energy_getter(std::move(board_energy_getter)),
-//        _neighbourhood_energy_getter(std::move(neighbourhood_energy_getter)) {
-//    }
-//    std::unique_ptr<energy::getter::BoardEnergyGetter<N, M>> _board_energy_getter;
-//    std::unique_ptr<energy::getter::NeighbourhoodEnergyGetter<NN, MM>> _neighbourhood_energy_getter;
-//};
-
-
 std::optional<std::unique_ptr<energy::getter::EnergyGetter<GLOBAL_M, GLOBAL_N, 3, 3>>>
 get_nn_mm_3_energy_getters(const InterpretedProgramOptions& interpreted_program_options) {
-    //    const ModelType& model_type = interpreted_program_options.model_type;
-    //    const EnergyGetterType& energy_getter_type = interpreted_program_options.energy_getter_type;
-    //    if (energy_getter_type == EnergyGetterType::ZeroNn) {
-    //        parts_energy_getter =
-    //    }
     return std::nullopt;
 }
 
@@ -74,13 +55,13 @@ get_nn_mm_7_energy_getters(const InterpretedProgramOptions& interpreted_program_
     if (energy_getter_type == EnergyGetterType::FourNn) {
         std::unique_ptr<energy::getter::FourNnPartsEnergyGetter> parts_energy_getter;
         if (model_type == ModelType::IsingDoublet) {
-            parts_energy_getter = std::make_unique<energy::ising::doublet::FourNnPartsEnergyGetter>();
+            parts_energy_getter = energy::ising::doublet::FourNnPartsEnergyGetter::make();
         } if (model_type == ModelType::IsingMultiplet) {
-            parts_energy_getter = std::make_unique<energy::ising::multiplet::FourNnPartsEnergyGetter>(2);
+            parts_energy_getter = energy::ising::multiplet::FourNnPartsEnergyGetter::make(2);
         } if (model_type == ModelType::Parametrized) {
             assert(false); //TODO implement
         }
-        return  std::make_unique<energy::getter::FourNnEnergyGetter<GLOBAL_N, GLOBAL_M>>(std::move(parts_energy_getter));
+        return energy::getter::FourNnEnergyGetter<GLOBAL_N, GLOBAL_M>::make(std::move(parts_energy_getter));
     }
     if (energy_getter_type == EnergyGetterType::EightNn) {
         assert(false); //TODO implement
@@ -175,11 +156,9 @@ int main(int argc, char** argv) {
         //                energy::getter::FourNnNeighbourhoodEnergyGetter{parts_energy_getter};
         // ******************************************************************
         //SET MODEL AND ENERGY GETTERS: TODO
-        std::unique_ptr<energy::getter::FourNnPartsEnergyGetter> parts_energy_getter =
-                std::make_unique<energy::ising::doublet::FourNnPartsEnergyGetter>();
-        //const energy::ising::multiplet::FourNnPartsEnergyGetter parts_energy_getter{2};
-        std::unique_ptr<energy::getter::EnergyGetter<GLOBAL_N, GLOBAL_M, 7, 7>> energy_getter =
-                std::make_unique<energy::getter::FourNnEnergyGetter<GLOBAL_N, GLOBAL_M>>(std::move(parts_energy_getter));
+        //auto parts_energy_getter = energy::ising::multiplet::FourNnPartsEnergyGetter::make(2);
+        auto parts_energy_getter = energy::ising::doublet::FourNnPartsEnergyGetter::make();
+        const auto energy_getter = energy::getter::FourNnEnergyGetter<GLOBAL_N, GLOBAL_M>::make(std::move(parts_energy_getter));
         // ******************************************************************
         const auto all_results = do_main_temperature_loop<GLOBAL_N, GLOBAL_M, 7, 7>(
                     interpreted_program_options.temerature_steps,
