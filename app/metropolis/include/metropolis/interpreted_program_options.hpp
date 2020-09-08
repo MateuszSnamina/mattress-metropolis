@@ -3,8 +3,8 @@
 
 // METRPOPOLIS:
 #include <metropolis/raw_program_options.hpp>
-#include <metropolis/energy_getter_type.hpp>
-#include <metropolis/model_type.hpp>
+#include <metropolis/enum_energy_getter_type.hpp>
+#include <metropolis/enum_model_type.hpp>
 // STD:
 #include <string>
 #include <vector>

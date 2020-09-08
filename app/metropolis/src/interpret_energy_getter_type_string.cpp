@@ -6,6 +6,7 @@
 #include <boost/range/adaptor/map.hpp>
 
 const extern std::map<std::string, EnergyGetterType> interpret_energy_getter_type_string_map = {
+    {"0nn", EnergyGetterType::ZeroNn},
     {"4nn", EnergyGetterType::FourNn},
     {"8nn", EnergyGetterType::EightNn},
 };

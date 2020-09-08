@@ -11,22 +11,22 @@
 #include<iostream>
 
 TEST(Energy, IsingMultipletSimplesEnergyGetter) {
-    const energy::ising::multiplet::SimplesPartsEnergyGetter parts_energy_getter{1001};
+    const energy::ising::multiplet::ZeroNnPartsEnergyGetter parts_energy_getter{1001};
     {
-        const energy::getter::SimplesNeighbourhoodEnergyGetter energy_getter{parts_energy_getter};
+        const energy::getter::ZeroNnEnergyGetter<4, 4> energy_getter{parts_energy_getter};
         const auto& neighborhood = numboard_tests::prepare_board<3, 3>();
         //std::cout << numboard::NumboardStreamer(neighborhood);
-        const double got_neighborhood_energy = energy_getter.get_energy(neighborhood);
+        const double got_neighborhood_energy = energy_getter.get_neighborhood_energy(neighborhood);
         const double expected_neighborhood_energy =
                 - (500 - 210) * (500 - 211) - (500 - 211) * (500 - 212)
                 - (500 - 201) * (500 - 211) - (500 - 211) * (500 - 221);
         ASSERT_DOUBLE_EQ(got_neighborhood_energy, expected_neighborhood_energy);
     }
     {
-        const energy::getter::SimplesBoardEnergyGetter<4, 4> energy_getter{parts_energy_getter};
+        const energy::getter::ZeroNnEnergyGetter<4, 4> energy_getter{parts_energy_getter};
         const auto& board = numboard_tests::prepare_board<4, 4>();
         //std::cout << numboard::NumboardStreamer(board);
-        const double got_board_energy = energy_getter.get_energy(board);
+        const double got_board_energy = energy_getter.get_board_energy(board);
         const double expected_board_energy =
                 // horizontal bonds:
                 - (500 - 200) * (500 - 201) - (500 - 201) * (500 - 202) - (500 - 202) * (500 - 203) - (500 - 203) * (500 - 200)
@@ -45,10 +45,10 @@ TEST(Energy, IsingMultipletSimplesEnergyGetter) {
 TEST(Energy, IsingMultipletFourNnEnergyGetter) {
     const energy::ising::multiplet::FourNnPartsEnergyGetter parts_energy_getter{1001};
     {
-        const energy::getter::FourNnNeighbourhoodEnergyGetter energy_getter{parts_energy_getter};
+        const energy::getter::FourNnEnergyGetter<8, 7> energy_getter{parts_energy_getter};
         const auto& neighborhood = numboard_tests::prepare_board<7, 7>();
         //std::cout << numboard::NumboardStreamer(neighborhood);
-        const double got_neighborhood_energy = energy_getter.get_energy(neighborhood);
+        const double got_neighborhood_energy = energy_getter.get_neighborhood_energy(neighborhood);
         const double expected_neighborhood_energy =
                 // upper horizonal bonds:
                 - (500 - 222) * (500 - 223) - (500 - 223) * (500 - 224)
@@ -65,10 +65,10 @@ TEST(Energy, IsingMultipletFourNnEnergyGetter) {
         ASSERT_DOUBLE_EQ(got_neighborhood_energy, expected_neighborhood_energy);
     }
     {
-        const energy::getter::FourNnBoardEnergyGetter<8, 7> energy_getter{parts_energy_getter};
+        const energy::getter::FourNnEnergyGetter<8, 7> energy_getter{parts_energy_getter};
         const auto& board = numboard_tests::prepare_board<8, 7>();
         //std::cout << numboard::NumboardStreamer(board);
-        const double got_board_energy = energy_getter.get_energy(board);
+        const double got_board_energy = energy_getter.get_board_energy(board);
         const double expected_board_energy =
                 // horizontal bonds:
                 - (500 - 200) * (500 - 201) - (500 - 201) * (500 - 202) - (500 - 202) * (500 - 203) - (500 - 203) * (500 - 204) - (500 - 204) * (500 - 205) - (500 - 205) * (500 - 206) - (500 - 206) * (500 - 200)

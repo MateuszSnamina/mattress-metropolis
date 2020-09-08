@@ -1,7 +1,7 @@
 #pragma once
 
 // METROPOLIS:
-#include <metropolis/energy_getter_type.hpp>
+#include <metropolis/enum_energy_getter_type.hpp>
 // UTILITY:
 #include <utility/result.hpp>
 // STL:

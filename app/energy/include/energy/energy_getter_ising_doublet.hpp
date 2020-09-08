@@ -27,7 +27,7 @@ double get_dublet_ising_result(
 
 namespace energy::ising::doublet {
 
-class SimplesPartsEnergyGetter : public energy::getter::SimplesPartsEnergyGetter {
+class ZeroNnPartsEnergyGetter : public energy::getter::ZeroNnPartsEnergyGetter {
 public:
     double get_horizonal_bond_energy(const numboard::NumboardView<1, 2>& part) const {
         using numboard::In;

@@ -15,7 +15,7 @@ namespace {
 
 void emit_help(std::ostream& s,
                const boost::program_options::options_description& desc) {
-    s << "Program: metropolis " << N << "x" << M << "." << std::endl;
+    s << "Program: metropolis " << GLOBAL_N << "x" << GLOBAL_M << "." << std::endl;
     s << desc << std::endl;
     const std::string possible_values_energy_getter_type_string = extension::boost::RangeStringStreamer()
                          .set_stream_sustainer([](::std::ostream&, size_t){})

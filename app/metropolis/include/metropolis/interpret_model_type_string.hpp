@@ -1,7 +1,7 @@
 #pragma once
 
 // METROPOLIS:
-#include <metropolis/model_type.hpp>
+#include <metropolis/enum_model_type.hpp>
 // UTILITY:
 #include <utility/result.hpp>
 // STL:

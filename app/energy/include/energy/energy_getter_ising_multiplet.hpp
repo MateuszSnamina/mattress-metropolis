@@ -30,9 +30,9 @@ double get_multiplet_ising_result(
 
 namespace energy::ising::multiplet {
 
-class SimplesPartsEnergyGetter : public energy::getter::SimplesPartsEnergyGetter {
+class ZeroNnPartsEnergyGetter : public energy::getter::ZeroNnPartsEnergyGetter {
 public:
-    SimplesPartsEnergyGetter(unsigned multiplicity) : _multiplicity(multiplicity) {
+    ZeroNnPartsEnergyGetter(unsigned multiplicity) : _multiplicity(multiplicity) {
         assert(multiplicity > 0);
     }
     double get_horizonal_bond_energy(const numboard::NumboardView<1, 2>& part) const {

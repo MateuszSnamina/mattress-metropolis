@@ -136,8 +136,7 @@ class MetropolisEngine {
 public:
     MetropolisEngine(
             const double beta,
-            const energy::getter::BoardEnergyGetter<N, M>& board_energy_getter,
-            const energy::getter::NeighbourhoodEnergyGetter<NN, MM>& neighbourhood_energy_getter);
+            const energy::getter::EnergyGetter<N, M, NN, MM>& energy_getterer);
     void init_random();
     void init_uniform(unsigned value = 0);
     MetropolisStepReceipt do_step();
@@ -145,8 +144,7 @@ public:
     MetropolisEngineStatisticalAccumulator get_accumulator() const;
 private:
     const double _beta;
-    const energy::getter::BoardEnergyGetter<N, M>& _board_energy_getter;
-    const energy::getter::NeighbourhoodEnergyGetter<NN, MM>& _neighbourhood_energy_getter;
+    const energy::getter::EnergyGetter<N, M, NN, MM>& _energy_getter;
     numboard::Numboard<N, M> _numboard{};
     MetropolisEngineStatisticalAccumulator _accumulator{};
     MetropolisEngineCache _cache{};
@@ -164,11 +162,9 @@ private:
 template<unsigned N, unsigned M, unsigned NN, unsigned MM>
 MetropolisEngine<N, M, NN, MM>::MetropolisEngine(
         const double beta,
-        const energy::getter::BoardEnergyGetter<N, M>& board_energy_getter,
-        const energy::getter::NeighbourhoodEnergyGetter<NN, MM>& neighbourhood_energy_getter) :
+        const energy::getter::EnergyGetter<N, M, NN, MM>& energy_getterer) :
     _beta(beta),
-    _board_energy_getter(board_energy_getter),
-    _neighbourhood_energy_getter(neighbourhood_energy_getter){
+    _energy_getter(energy_getterer) {
 }
 
 template<unsigned N, unsigned M, unsigned NN, unsigned MM>
@@ -189,8 +185,8 @@ MetropolisStepReceipt MetropolisEngine<N, M, NN, MM>::do_step() {
     // Calculate delta_energy:
     const auto& original_neighbourhood = numboard::NumboardSubViewFactory<NN, MM>::from_center(_numboard, In<N>(a), In<M>(b));
     const auto& proposed_neighbourhood = numboard::NumboardAlterViewFactory<NN, MM>::center(original_neighbourhood, proposed_value);
-    double original_neighbourhood_energy = _neighbourhood_energy_getter.get_energy(original_neighbourhood);
-    double proposed_neighbourhood_energy =  _neighbourhood_energy_getter.get_energy(proposed_neighbourhood);
+    double original_neighbourhood_energy = _energy_getter.get_neighborhood_energy(original_neighbourhood);
+    double proposed_neighbourhood_energy =  _energy_getter.get_neighborhood_energy(proposed_neighbourhood);
     double delta_energy = proposed_neighbourhood_energy - original_neighbourhood_energy;
     //std::cout << "delta_energy:" << delta_energy << std::endl;
     // Calculate delta_magnetisation:
@@ -212,7 +208,7 @@ MetropolisStepReceipt MetropolisEngine<N, M, NN, MM>::do_step() {
     // Debug part:
 #ifndef NDEBUG
     {
-        const double board_energy_recalculated = _board_energy_getter.get_energy(_numboard); //TODO remove debug
+        const double board_energy_recalculated = _energy_getter.get_board_energy(_numboard); //TODO remove debug
         //std::cout << "new_board_energy:          " << new_board_energy << std::endl; //TODO remove debug
         //std::cout << "board_energy_recalculated: " << board_energy_recalculated << std::endl; //TODO remove debug
         assert(board_energy_recalculated - new_board_energy < 1e-10);
@@ -257,7 +253,7 @@ void MetropolisEngine<N, M, NN, MM>::init_random() {
 
 template<unsigned N, unsigned M, unsigned NN, unsigned MM>
 void MetropolisEngine<N, M, NN, MM>::init_cache() {
-    const double board_energy = _board_energy_getter.get_energy(_numboard);
+    const double board_energy = _energy_getter.get_board_energy(_numboard);
     const double board_magnetization = calculate_board_magnetization(_numboard);
     //std::cout << "init board_energy:" << board_energy << std::endl;
     //std::cout << "init board_magnetization:" << board_magnetization << std::endl;

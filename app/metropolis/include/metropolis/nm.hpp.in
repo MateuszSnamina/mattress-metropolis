@@ -1,4 +1,4 @@
 #pragma once
 
-const unsigned N = @N@;
-const unsigned M = @M@;
+const unsigned GLOBAL_N = @N@;
+const unsigned GLOBAL_M = @M@;
