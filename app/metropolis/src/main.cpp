@@ -139,7 +139,7 @@ void print_input_data(const InterpretedProgramOptions& interpreted_program_optio
     const extension::std::StreamFromatStacker stream_format_stacker(std::cout);
     std::cout << "[INFO   ] [BOARD SIEZE] N x M                          = " << GLOBAL_N << " x " << GLOBAL_M << std::endl;
     std::cout << "[INFO   ] [PROGRAM_OPTIONS] temerature_steps           = "
-              << RSS().set_null_sustainer().set_string_separer(", ") + interpreted_program_options.temerature_steps
+              << (interpreted_program_options.temerature_steps | RSS().set_null_sustainer().set_string_separer(", "))
               << std::endl;
     std::cout << "[INFO   ] [PROGRAM_OPTIONS] n_thermal_steps            = "
               << std::left << std::setw(9) << interpreted_program_options.n_thermal_steps

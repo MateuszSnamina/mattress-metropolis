@@ -111,9 +111,9 @@ namespace extension::boost {
 template<class R>
 class RangeStreamer {
 public:
-    RangeStreamer(const RangeStreamerSettings& range_streamer_settings, const R& range) :
-        _range_streamer_settings(range_streamer_settings),
-        _range(range) {
+    RangeStreamer(const R& range, const RangeStreamerSettings& range_streamer_settings) :
+        _range(range),
+        _range_streamer_settings(range_streamer_settings) {
     }
 
     ::std::ostream& stream(::std::ostream& os) const {
@@ -137,20 +137,28 @@ public:
         return oss.str();
     }
 
-    const RangeStreamerSettings& _range_streamer_settings;
     const R& _range;
+    const RangeStreamerSettings& _range_streamer_settings;
 };
 
 namespace stream_pragma {
 
 template<class R>
-RangeStreamer<R> operator+(const RangeStreamerSettings& range_streamer_settings, const R& range){
-    return RangeStreamer<R>(range_streamer_settings, range);
+RangeStreamer<R> operator|(const R& range, const RangeStreamerSettings& range_streamer_settings){
+    return RangeStreamer<R>(range, range_streamer_settings);
 }
 
 template<class R>
 ::std::ostream& operator<<(::std::ostream& os, const RangeStreamer<R>& range_streamer) {
     return range_streamer.stream(os);
+}
+
+struct Stringifier {
+};
+
+template<class R>
+::std::string operator|(const RangeStreamer<R>& range_streamer, Stringifier) {
+    return range_streamer.str();
 }
 
 using RSS = RangeStreamerSettings;

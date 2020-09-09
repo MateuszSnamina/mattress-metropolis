@@ -18,9 +18,11 @@ void emit_help(std::ostream& s,
     using namespace extension::boost::stream_pragma;
     s << "Program: metropolis " << GLOBAL_N << "x" << GLOBAL_M << "." << std::endl;
     s << desc << std::endl;
-    const auto& range_stream_settings = RSS().set_null_sustainer().set_string_separer(", ");
-    const std::string possible_values_energy_getter_type_string = (range_stream_settings + (interpret_energy_getter_type_string_map | boost::adaptors::map_keys)).str();
-    const std::string possible_values_model_type_string = (range_stream_settings + (interpret_model_type_string_map | boost::adaptors::map_keys)).str();
+    const auto range_stream_settings = RSS().set_null_sustainer().set_string_separer(", ");
+    const std::string possible_values_energy_getter_type_string =
+            interpret_energy_getter_type_string_map | boost::adaptors::map_keys | range_stream_settings | Stringifier{};
+    const std::string possible_values_model_type_string =
+            interpret_model_type_string_map | boost::adaptors::map_keys | range_stream_settings | Stringifier{};
     std::cout << "Possible values of energy_getter_type string: " << possible_values_energy_getter_type_string << "." << std::endl;
     std::cout << "Possible values of model_type string: " << possible_values_model_type_string << "." << std::endl;
 }
