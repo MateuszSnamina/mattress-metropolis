@@ -71,6 +71,12 @@ public:
     double get_average_sq_energy() const {
         return _sq_energy / _steps;
     }
+    double get_average_sigma_energy() const {
+        return get_average_sq_energy() - get_average_energy() * get_average_energy();
+    }
+    double get_specific_heat(double beta) const {
+        return get_average_sigma_energy() * beta * beta;
+    }
     double get_average_magnetization() const {
         return _magnetization / _steps;
     }

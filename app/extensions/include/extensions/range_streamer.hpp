@@ -26,11 +26,22 @@ struct RangeStreamerSettings {
     RangeStreamerSettings& set_format_independence_flag(bool = true);
     // Setters - convenience:
     RangeStreamerSettings& set_null_preparer();
+    RangeStreamerSettings& set_char_preparer(char c);
+    RangeStreamerSettings& set_string_preparer(::std::string str);
     RangeStreamerSettings& set_null_sustainer();
     RangeStreamerSettings& set_null_separer();
     RangeStreamerSettings& set_char_separer(char c);
     RangeStreamerSettings& set_string_separer(::std::string str);
     RangeStreamerSettings& set_null_finisher();
+    RangeStreamerSettings& set_char_finisher(char c);
+    RangeStreamerSettings& set_string_finisher(::std::string str);
+    RangeStreamerSettings& in_bracket_round();
+    RangeStreamerSettings& in_bracket_curly();
+    RangeStreamerSettings& in_bracket_square();
+    RangeStreamerSettings& in_bracket_angle();
+    RangeStreamerSettings& in_quotation_single();
+    RangeStreamerSettings& in_quotation_double();
+    RangeStreamerSettings& in_quotation_back();
     // Fields:
     ::std::function<void(::std::ostream&)> _stream_preparer =
             [](::std::ostream& s) { s << "{"; };
@@ -75,6 +86,16 @@ inline RangeStreamerSettings& RangeStreamerSettings::set_null_preparer() {
     return *this;
 }
 
+inline RangeStreamerSettings& RangeStreamerSettings::set_char_preparer(char c) {
+    _stream_preparer = [c](::std::ostream& s) { s << c; };
+    return *this;
+}
+
+inline RangeStreamerSettings& RangeStreamerSettings::set_string_preparer(::std::string str) {
+    _stream_preparer = [str](::std::ostream& s) { s << str; };
+    return *this;
+}
+
 inline RangeStreamerSettings& RangeStreamerSettings::set_null_sustainer() {
     _stream_sustainer = [](::std::ostream&, size_t) {};
     return *this;
@@ -99,6 +120,59 @@ inline RangeStreamerSettings& RangeStreamerSettings::set_null_finisher() {
     _stream_finisher = [](::std::ostream&) {};
     return *this;
 }
+
+inline RangeStreamerSettings& RangeStreamerSettings::set_char_finisher(char c) {
+    _stream_finisher = [c](::std::ostream& s) { s << c; };
+    return *this;
+}
+
+inline RangeStreamerSettings& RangeStreamerSettings::set_string_finisher(::std::string str) {
+    _stream_finisher = [str](::std::ostream& s) { s << str; };
+    return *this;
+}
+
+inline RangeStreamerSettings& RangeStreamerSettings::in_bracket_round() {
+    set_char_preparer('(');
+    set_char_finisher(')');
+    return *this;
+}
+
+inline RangeStreamerSettings& RangeStreamerSettings::in_bracket_curly() {
+    set_char_preparer('{');
+    set_char_finisher('}');
+    return *this;
+}
+
+inline RangeStreamerSettings& RangeStreamerSettings::in_bracket_square() {
+    set_char_preparer('[');
+    set_char_finisher(']');
+    return *this;
+}
+
+inline RangeStreamerSettings& RangeStreamerSettings::in_bracket_angle() {
+    set_char_preparer('<');
+    set_char_finisher('>');
+    return *this;
+}
+
+inline RangeStreamerSettings& RangeStreamerSettings::in_quotation_single() {
+    set_char_preparer('\'');
+    set_char_finisher('\'');
+    return *this;
+}
+
+inline RangeStreamerSettings& RangeStreamerSettings::in_quotation_double() {
+    set_char_preparer('"');
+    set_char_finisher('"');
+    return *this;
+}
+
+inline RangeStreamerSettings& RangeStreamerSettings::in_quotation_back() {
+    set_char_preparer('`');
+    set_char_finisher('`');
+    return *this;
+}
+
 
 }  // namespace extension::boost
 

@@ -14,6 +14,7 @@
 #include <extensions/stream_fromat_stacker.hpp>
 // BOOST:
 #include <boost/range/adaptor/indexed.hpp>
+#include <boost/range/adaptor/transformed.hpp>
 // STD:
 #include<iostream>
 #include<chrono>
@@ -23,27 +24,71 @@
 
 //const double ising_tc = 1 / 2 / std::log(1 + std::sqrt(2));
 
+void print(const std::vector<std::pair<double, metropolis_engine::MetropolisEngineStatisticalAccumulator>>& results) {
+    using namespace extension::boost::stream_pragma;
+    using namespace boost::adaptors;
+    constexpr auto GLOBAL_NM = GLOBAL_N * GLOBAL_M;
+    const extension::std::StreamFromatStacker stream_format_stacker(std::cout);
+    const auto range_stream_settings = RSS()
+            .set_null_sustainer()
+            .set_string_separer(", ")
+            .in_bracket_square();
+    std::cout << "[RESULTS] " << "T: " <<
+                 (results |
+                  transformed([](const auto& _){return _.first;}) |
+                  range_stream_settings )
+              << std::endl;
+    std::cout << "[RESULTS] " << "E: " <<
+                 (results |
+                  transformed([](const auto& _){return _.second.get_average_energy() / GLOBAL_NM;}) |
+                  range_stream_settings )
+              << std::endl;
+    std::cout << "[RESULTS] " << "σE: " <<
+                 (results |
+                  transformed([](const auto& _){return _.second.get_average_sigma_energy() / GLOBAL_NM;}) |
+                  range_stream_settings )
+              << std::endl;
+    std::cout << "[RESULTS] " << "C: " <<
+                 (results |
+                  transformed([](const auto& _){return _.second.get_specific_heat(1/_.first) / GLOBAL_NM;}) |
+                  range_stream_settings )
+              << std::endl;
+    std::cout << "[RESULTS] " << "|M|: " <<
+                 (results |
+                  transformed([](const auto& _){return _.second.get_average_abs_magnetization() / GLOBAL_NM;}) |
+                  range_stream_settings ) << std::endl;
+}
+
 void print(const double temperatue,
            const metropolis_engine::MetropolisEngineStatisticalAccumulator& results,
            const double simulation_time_sec) {
+    constexpr auto GLOBAL_NM = GLOBAL_N * GLOBAL_M;
     const extension::std::StreamFromatStacker stream_format_stacker(std::cout);
     const double beta = 1 / temperatue;
     const double average_energy = results.get_average_energy();
-    const double average_sq_energy = results.get_average_sq_energy();
-    const double average_sigma_energy = average_sq_energy - average_energy * average_energy;
-    const double specific_heat = average_sigma_energy * beta * beta;
+    //const double average_sq_energy = results.get_average_sq_energy();
+    const double average_sigma_energy = results.get_average_sigma_energy();
+    const double specific_heat = results.get_specific_heat(beta);
     //const double average_magnetization = results.get_average_magnetization();
     const double average_abs_magnetization = results.get_average_abs_magnetization();
-    std::cout << "[FLOW   ] " << "│├ " << std::setw(31) << std::left << "T, β:" << temperatue << ", " << beta << std::endl;
-    // std::cout << "[FLOW   ] " << "│├ " << std::setw(30) << std::left << "steps:" << results.get_steps() << std::endl;
-    std::cout << "[FLOW   ] " << "│├ " << std::setw(30) << std::left << "E(" + std::to_string(temperatue) + "):" << average_energy / (GLOBAL_N * GLOBAL_M) << std::endl;
-    //std::cout << "[FLOW   ] " << "│├ " << std::setw(30) << std::left << "E^2(" + std::to_string(temperatue) + "):" << average_sq_energy / (N * M) << std::endl;
-    std::cout << "[FLOW   ] " << "│├ " << std::setw(31) << std::left << "σE(" + std::to_string(temperatue) + "):" << average_sigma_energy / (GLOBAL_N * GLOBAL_M) << std::endl;
-    std::cout << "[FLOW   ] " << "│├ " << std::setw(30) << std::left << "C(" + std::to_string(temperatue) + "):" << specific_heat / (GLOBAL_N * GLOBAL_M) << std::endl;
-    //std::cout << "[FLOW   ] " << "│├ " << std::setw(30) << std::left << "M(" + std::to_string(temperatue) + "):" << average_magnetization / (N * M) << std::endl;
-    std::cout << "[FLOW   ] " << "│├ " << std::setw(30) << std::left << "|M|(" + std::to_string(temperatue) + "):" << average_abs_magnetization / (GLOBAL_N * GLOBAL_M) << std::endl;
-    std::cout << "[FLOW   ] " << "│├ " << std::setw(30) << std::left << "simulation time:" << simulation_time_sec << "[s]" << std::endl;
-
+    std::cout << "[FLOW   ] " << "│├ "
+              << std::setw(31) << std::left << "T, β:" << temperatue << ", " << beta << std::endl;
+    // std::cout << "[FLOW   ] " << "│├ "
+    //           << std::setw(30) << std::left << "steps:" << results.get_steps() << std::endl;
+    std::cout << "[FLOW   ] " << "│├ "
+              << std::setw(30) << std::left << "E(" + std::to_string(temperatue) + "):" << average_energy / GLOBAL_NM << std::endl;
+    //std::cout << "[FLOW   ] " << "│├ "
+    //          << std::setw(30) << std::left << "E^2(" + std::to_string(temperatue) + "):" << average_sq_energy / GLOBAL_NM << std::endl;
+    std::cout << "[FLOW   ] " << "│├ "
+              << std::setw(31) << std::left << "σE(" + std::to_string(temperatue) + "):" << average_sigma_energy / GLOBAL_NM << std::endl;
+    std::cout << "[FLOW   ] " << "│├ "
+              << std::setw(30) << std::left << "C(" + std::to_string(temperatue) + "):" << specific_heat / GLOBAL_NM << std::endl;
+    //std::cout << "[FLOW   ] " << "│├ "
+    //          << std::setw(30) << std::left << "M(" + std::to_string(temperatue) + "):" << average_magnetization / GLOBAL_NM << std::endl;
+    std::cout << "[FLOW   ] " << "│├ "
+              << std::setw(30) << std::left << "|M|(" + std::to_string(temperatue) + "):" << average_abs_magnetization / GLOBAL_NM << std::endl;
+    std::cout << "[FLOW   ] " << "│├ "
+              << std::setw(30) << std::left << "simulation time:" << simulation_time_sec << "[s]" << std::endl;
 }
 
 std::optional<std::unique_ptr<energy::getter::EnergyGetter<GLOBAL_N, GLOBAL_M, 3, 3>>>
@@ -131,6 +176,7 @@ do_main_temperature_loop(
         print(temperatue, results, simulation_time_sec);
         all_results.push_back({temperatue, results});
     }
+    print(all_results);
     return all_results;
 }
 
