@@ -35,12 +35,12 @@ void print(const double temperatue,
     //const double average_magnetization = results.get_average_magnetization();
     const double average_abs_magnetization = results.get_average_abs_magnetization();
     std::cout << "[FLOW   ] " << "│├ " << std::setw(31) << std::left << "T, β:" << temperatue << ", " << beta << std::endl;
- // std::cout << "[FLOW   ] " << "│├ " << std::setw(30) << std::left << "steps:" << results.get_steps() << std::endl;
+    // std::cout << "[FLOW   ] " << "│├ " << std::setw(30) << std::left << "steps:" << results.get_steps() << std::endl;
     std::cout << "[FLOW   ] " << "│├ " << std::setw(30) << std::left << "E(" + std::to_string(temperatue) + "):" << average_energy / (GLOBAL_N * GLOBAL_M) << std::endl;
-  //std::cout << "[FLOW   ] " << "│├ " << std::setw(30) << std::left << "E^2(" + std::to_string(temperatue) + "):" << average_sq_energy / (N * M) << std::endl;
+    //std::cout << "[FLOW   ] " << "│├ " << std::setw(30) << std::left << "E^2(" + std::to_string(temperatue) + "):" << average_sq_energy / (N * M) << std::endl;
     std::cout << "[FLOW   ] " << "│├ " << std::setw(31) << std::left << "σE(" + std::to_string(temperatue) + "):" << average_sigma_energy / (GLOBAL_N * GLOBAL_M) << std::endl;
     std::cout << "[FLOW   ] " << "│├ " << std::setw(30) << std::left << "C(" + std::to_string(temperatue) + "):" << specific_heat / (GLOBAL_N * GLOBAL_M) << std::endl;
-  //std::cout << "[FLOW   ] " << "│├ " << std::setw(30) << std::left << "M(" + std::to_string(temperatue) + "):" << average_magnetization / (N * M) << std::endl;
+    //std::cout << "[FLOW   ] " << "│├ " << std::setw(30) << std::left << "M(" + std::to_string(temperatue) + "):" << average_magnetization / (N * M) << std::endl;
     std::cout << "[FLOW   ] " << "│├ " << std::setw(30) << std::left << "|M|(" + std::to_string(temperatue) + "):" << average_abs_magnetization / (GLOBAL_N * GLOBAL_M) << std::endl;
     std::cout << "[FLOW   ] " << "│├ " << std::setw(30) << std::left << "simulation time:" << simulation_time_sec << "[s]" << std::endl;
 
@@ -135,13 +135,11 @@ do_main_temperature_loop(
 }
 
 void print_input_data(const InterpretedProgramOptions& interpreted_program_options) {
+    using namespace extension::boost::stream_pragma;
     const extension::std::StreamFromatStacker stream_format_stacker(std::cout);
     std::cout << "[INFO   ] [BOARD SIEZE] N x M                          = " << GLOBAL_N << " x " << GLOBAL_M << std::endl;
     std::cout << "[INFO   ] [PROGRAM_OPTIONS] temerature_steps           = "
-              << extension::boost::RangeStringStreamer()
-                 .set_stream_sustainer([](::std::ostream&, size_t){})
-                 .set_stream_separer([](::std::ostream& s){ s << ", ";})
-                 .stream(interpreted_program_options.temerature_steps).str()
+              << RSS().set_null_sustainer().set_string_separer(", ") + interpreted_program_options.temerature_steps
               << std::endl;
     std::cout << "[INFO   ] [PROGRAM_OPTIONS] n_thermal_steps            = "
               << std::left << std::setw(9) << interpreted_program_options.n_thermal_steps

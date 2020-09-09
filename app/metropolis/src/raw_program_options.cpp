@@ -15,16 +15,12 @@ namespace {
 
 void emit_help(std::ostream& s,
                const boost::program_options::options_description& desc) {
+    using namespace extension::boost::stream_pragma;
     s << "Program: metropolis " << GLOBAL_N << "x" << GLOBAL_M << "." << std::endl;
     s << desc << std::endl;
-    const std::string possible_values_energy_getter_type_string = extension::boost::RangeStringStreamer()
-                         .set_stream_sustainer([](::std::ostream&, size_t){})
-                         .set_stream_separer([](::std::ostream& s){ s << ", ";})
-                         .stream(interpret_energy_getter_type_string_map | boost::adaptors::map_keys).str();
-    const std::string possible_values_model_type_string = extension::boost::RangeStringStreamer()
-                         .set_stream_sustainer([](::std::ostream&, size_t){})
-                         .set_stream_separer([](::std::ostream& s){ s << ", ";})
-                         .stream(interpret_model_type_string_map | boost::adaptors::map_keys).str();
+    const auto& range_stream_settings = RSS().set_null_sustainer().set_string_separer(", ");
+    const std::string possible_values_energy_getter_type_string = (range_stream_settings + (interpret_energy_getter_type_string_map | boost::adaptors::map_keys)).str();
+    const std::string possible_values_model_type_string = (range_stream_settings + (interpret_model_type_string_map | boost::adaptors::map_keys)).str();
     std::cout << "Possible values of energy_getter_type string: " << possible_values_energy_getter_type_string << "." << std::endl;
     std::cout << "Possible values of model_type string: " << possible_values_model_type_string << "." << std::endl;
 }

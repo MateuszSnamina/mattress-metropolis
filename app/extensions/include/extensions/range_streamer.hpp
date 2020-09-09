@@ -18,21 +18,28 @@
 namespace extension::boost {
 
 struct RangeStreamerSettings {
-    // Setters:
+    // Setters - general:
     RangeStreamerSettings& set_stream_preparer(::std::function<void(::std::ostream&)>);
     RangeStreamerSettings& set_stream_sustainer(::std::function<void(::std::ostream&, size_t)>);
     RangeStreamerSettings& set_stream_separer(::std::function<void(::std::ostream&)>);
     RangeStreamerSettings& set_stream_finisher(::std::function<void(::std::ostream&)>);
     RangeStreamerSettings& set_format_independence_flag(bool = true);
+    // Setters - convenience:
+    RangeStreamerSettings& set_null_preparer();
+    RangeStreamerSettings& set_null_sustainer();
+    RangeStreamerSettings& set_null_separer();
+    RangeStreamerSettings& set_char_separer(char c);
+    RangeStreamerSettings& set_string_separer(::std::string str);
+    RangeStreamerSettings& set_null_finisher();
     // Fields:
     ::std::function<void(::std::ostream&)> _stream_preparer =
-        [](::std::ostream& s) { s << "{"; };
+            [](::std::ostream& s) { s << "{"; };
     ::std::function<void(::std::ostream&, size_t)> _stream_sustainer =
-        [](::std::ostream& s, size_t i) { s << i << ":"; };
+            [](::std::ostream& s, size_t i) { s << i << ":"; };
     ::std::function<void(::std::ostream&)> _stream_separer =
-        [](::std::ostream& s) { s << ","; };
+            [](::std::ostream& s) { s << ","; };
     ::std::function<void(::std::ostream&)> _stream_finisher =
-        [](::std::ostream& s) { s << "}"; };
+            [](::std::ostream& s) { s << "}"; };
     bool _format_independence_flag = true;
 };
 
@@ -63,6 +70,36 @@ inline RangeStreamerSettings& RangeStreamerSettings::set_stream_finisher(::std::
     return *this;
 }
 
+inline RangeStreamerSettings& RangeStreamerSettings::set_null_preparer() {
+    _stream_preparer = [](::std::ostream&) {};
+    return *this;
+}
+
+inline RangeStreamerSettings& RangeStreamerSettings::set_null_sustainer() {
+    _stream_sustainer = [](::std::ostream&, size_t) {};
+    return *this;
+}
+
+inline RangeStreamerSettings& RangeStreamerSettings::set_null_separer() {
+    _stream_separer = [](::std::ostream&) {};
+    return *this;
+}
+
+inline RangeStreamerSettings& RangeStreamerSettings::set_char_separer(char c) {
+    _stream_separer = [c](::std::ostream& s) { s << c; };
+    return *this;
+}
+
+inline RangeStreamerSettings& RangeStreamerSettings::set_string_separer(::std::string str) {
+    _stream_separer = [str](::std::ostream& s) { s << str; };
+    return *this;
+}
+
+inline RangeStreamerSettings& RangeStreamerSettings::set_null_finisher() {
+    _stream_finisher = [](::std::ostream&) {};
+    return *this;
+}
+
 }  // namespace extension::boost
 
 // #######################################################################
@@ -71,164 +108,52 @@ inline RangeStreamerSettings& RangeStreamerSettings::set_stream_finisher(::std::
 
 namespace extension::boost {
 
+template<class R>
 class RangeStreamer {
-   public:  // Ctor:
-    RangeStreamer(::std::ostream& os, RangeStreamerSettings = RangeStreamerSettings());
-
-   public:  // Internal ostream assessor:
-    ::std::ostream& ostream();
-    const ::std::ostream& ostream() const;
-
-   public:  // Setters for fine streaming settings:
-    RangeStreamer& set_range_streamer_settings(RangeStreamerSettings);
-    RangeStreamer& set_stream_preparer(::std::function<void(::std::ostream&)>);
-    RangeStreamer& set_stream_sustainer(::std::function<void(::std::ostream&, size_t)>);
-    RangeStreamer& set_stream_separer(::std::function<void(::std::ostream&)>);
-    RangeStreamer& set_stream_finisher(::std::function<void(::std::ostream&)>);
-    RangeStreamer& set_format_independence_flag(bool = true);
-
-   public:  // The streaming function:
-    template <typename SinglePassRange>
-    RangeStreamer& stream(const SinglePassRange& rng);
-
-   private:
-    ::std::ostream& _os;
-    RangeStreamerSettings _range_streamer_settings;
-};
-
-// ***********************************************************************
-
-inline RangeStreamer::RangeStreamer(::std::ostream& os, RangeStreamerSettings range_streamer_settings)
-    : _os(os),
-      _range_streamer_settings(range_streamer_settings) {}
-
-// ***********************************************************************
-
-inline RangeStreamer& RangeStreamer::set_range_streamer_settings(RangeStreamerSettings _) {
-    _range_streamer_settings = _;
-    return *this;
-}
-inline RangeStreamer& RangeStreamer::set_stream_preparer(::std::function<void(::std::ostream&)> _) {
-    _range_streamer_settings.set_stream_preparer(_);
-    return *this;
-}
-
-inline RangeStreamer& RangeStreamer::set_stream_sustainer(::std::function<void(::std::ostream&, size_t)> _) {
-    _range_streamer_settings.set_stream_sustainer(_);
-    return *this;
-}
-
-inline RangeStreamer& RangeStreamer::set_stream_separer(::std::function<void(::std::ostream&)> _) {
-    _range_streamer_settings.set_stream_separer(_);
-    return *this;
-}
-
-inline RangeStreamer& RangeStreamer::set_stream_finisher(::std::function<void(::std::ostream&)> _) {
-    _range_streamer_settings.set_stream_finisher(_);
-    return *this;
-}
-
-inline RangeStreamer& RangeStreamer::set_format_independence_flag(bool _) {
-    _range_streamer_settings.set_format_independence_flag(_);
-    return *this;
-}
-
-template <typename SinglePassRange>
-RangeStreamer& RangeStreamer::stream(const SinglePassRange& rng) {
-    const extension::std::StreamFromatStacker stream_format_stacker(_os, _range_streamer_settings._format_independence_flag);
-    _range_streamer_settings._stream_preparer(_os);
-    for (const auto& _ : rng | ::boost::adaptors::indexed(0)) {
-        if (_.index() != 0) {
-            _range_streamer_settings._stream_separer(_os);
-        }
-        _range_streamer_settings._stream_sustainer(_os, _.index());
-        _os << _.value();
+public:
+    RangeStreamer(const RangeStreamerSettings& range_streamer_settings, const R& range) :
+        _range_streamer_settings(range_streamer_settings),
+        _range(range) {
     }
-    _range_streamer_settings._stream_finisher(_os);
-    return *this;
-}
 
-inline ::std::ostream& RangeStreamer::ostream() {
-    return _os;
-}
+    ::std::ostream& stream(::std::ostream& os) const {
+        const extension::std::StreamFromatStacker stream_format_stacker(
+                    os, _range_streamer_settings._format_independence_flag);
+        _range_streamer_settings._stream_preparer(os);
+        for (const auto& _ : _range | ::boost::adaptors::indexed(0)) {
+            if (_.index() != 0) {
+                _range_streamer_settings._stream_separer(os);
+            }
+            _range_streamer_settings._stream_sustainer(os, _.index());
+            os << _.value();
+        }
+        _range_streamer_settings._stream_finisher(os);
+        return os;
+    }
 
-inline const ::std::ostream& RangeStreamer::ostream() const {
-    return _os;
-}
+    ::std::string str() const {
+        ::std::ostringstream oss;
+        stream(oss);
+        return oss.str();
+    }
 
-// #######################################################################
-// ##  RangeStringStreamer                                              ##
-// #######################################################################
-
-class RangeStringStreamer {
-   public:  // Ctor:
-    RangeStringStreamer(RangeStreamerSettings = RangeStreamerSettings());
-
-   public:  // Setters for fine streaming settings:
-    RangeStringStreamer& set_range_streamer_settings(RangeStreamerSettings);
-    RangeStringStreamer& set_stream_preparer(::std::function<void(::std::ostream&)>);
-    RangeStringStreamer& set_stream_sustainer(::std::function<void(::std::ostream&, size_t)>);
-    RangeStringStreamer& set_stream_separer(::std::function<void(::std::ostream&)>);
-    RangeStringStreamer& set_stream_finisher(::std::function<void(::std::ostream&)>);
-    RangeStringStreamer& set_format_independence_flag(bool = true);
-
-   public:  // The streaming function:
-    template <typename SinglePassRange>
-    RangeStringStreamer& stream(const SinglePassRange& rng);
-
-   public:  // Function to retreive the streaming result
-    ::std::string str() const;
-
-   private:
-    ::std::ostringstream _oss;
-    RangeStreamer _rs;
+    const RangeStreamerSettings& _range_streamer_settings;
+    const R& _range;
 };
 
-// ***********************************************************************
+namespace stream_pragma {
 
-inline RangeStringStreamer::RangeStringStreamer(RangeStreamerSettings range_streamer_settings)
-    : _rs(_oss, range_streamer_settings) {
+template<class R>
+RangeStreamer<R> operator+(const RangeStreamerSettings& range_streamer_settings, const R& range){
+    return RangeStreamer<R>(range_streamer_settings, range);
 }
 
-// ***********************************************************************
-
-inline RangeStringStreamer& RangeStringStreamer::set_range_streamer_settings(RangeStreamerSettings _) {
-    _rs.set_range_streamer_settings(_);
-    return *this;
-}
-inline RangeStringStreamer& RangeStringStreamer::set_stream_preparer(::std::function<void(::std::ostream&)> _) {
-    _rs.set_stream_preparer(_);
-    return *this;
+template<class R>
+::std::ostream& operator<<(::std::ostream& os, const RangeStreamer<R>& range_streamer) {
+    return range_streamer.stream(os);
 }
 
-inline RangeStringStreamer& RangeStringStreamer::set_stream_sustainer(::std::function<void(::std::ostream&, size_t)> _) {
-    _rs.set_stream_sustainer(_);
-    return *this;
-}
+using RSS = RangeStreamerSettings;
 
-inline RangeStringStreamer& RangeStringStreamer::set_stream_separer(::std::function<void(::std::ostream&)> _) {
-    _rs.set_stream_separer(_);
-    return *this;
-}
-
-inline RangeStringStreamer& RangeStringStreamer::set_stream_finisher(::std::function<void(::std::ostream&)> _) {
-    _rs.set_stream_finisher(_);
-    return *this;
-}
-
-inline RangeStringStreamer& RangeStringStreamer::set_format_independence_flag(bool _) {
-    _rs.set_format_independence_flag(_);
-    return *this;
-}
-
-template <typename SinglePassRange>
-RangeStringStreamer& RangeStringStreamer::stream(const SinglePassRange& rng) {
-    _rs.stream(rng);
-    return *this;
-}
-
-inline ::std::string RangeStringStreamer::str() const {
-    return _oss.str();
-}
-
+}  // namespace op
 }  // namespace extension::boost
