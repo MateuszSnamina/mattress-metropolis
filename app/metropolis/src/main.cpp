@@ -22,8 +22,6 @@
 #include<optional>
 #include<memory>
 
-//const double ising_tc = 1 / 2 / std::log(1 + std::sqrt(2));
-
 void print(const std::vector<std::pair<double, metropolis_engine::MetropolisEngineStatisticalAccumulator>>& results) {
     using namespace extension::boost::stream_pragma;
     using namespace boost::adaptors;

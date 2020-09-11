@@ -140,6 +140,7 @@ message("-----------------------------------")
 
 add_subdirectory(utility)
 add_subdirectory(extensions)
+add_subdirectory(extensions_tests)
 add_subdirectory(numboard)
 add_subdirectory(numboard_tests)
 add_subdirectory(energy)
