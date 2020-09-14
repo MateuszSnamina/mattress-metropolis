@@ -20,9 +20,9 @@ void emit_help(std::ostream& s,
     s << desc << std::endl;
     const auto range_stream_settings = RSS().set_null_sustainer().set_string_separer(", ");
     const std::string possible_values_energy_getter_type_string =
-            interpret_energy_getter_type_string_map | boost::adaptors::map_keys | range_stream_settings | Stringifier{};
+            (interpret_energy_getter_type_string_map | boost::adaptors::map_keys | range_stream_settings).str();
     const std::string possible_values_model_type_string =
-            interpret_model_type_string_map | boost::adaptors::map_keys | range_stream_settings | Stringifier{};
+            (interpret_model_type_string_map | boost::adaptors::map_keys | range_stream_settings).str();
     std::cout << "Possible values of energy_getter_type string: " << possible_values_energy_getter_type_string << "." << std::endl;
     std::cout << "Possible values of model_type string: " << possible_values_model_type_string << "." << std::endl;
 }
